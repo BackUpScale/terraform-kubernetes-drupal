@@ -3,12 +3,10 @@ variable "cluster_terraform_id" {}
 variable "environment" {}
 variable "helm_chart_version" {}
 variable "drupal_files_storage_class" {}
+variable "drupal_dashboard_namespace" {}
+variable "container_registry_credentials" {}
 
 # Optionals with defaults.
-variable "drupal_dashboard_namespace" {
-  type    = string
-  default = "dash"
-}
  variable "drupal_files_volume_name" {
    type    = string
    default = "drupal-files"
