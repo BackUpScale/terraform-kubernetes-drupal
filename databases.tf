@@ -30,22 +30,3 @@ resource "civo_database" "drupal_dashboard_db" {
   firewall_id = var.firewall_id
   network_id = var.network_id
 }
-
-# Output important connection info to use in your Helm chart or other resources
-output "db_host" {
-  value = civo_database.drupal_dashboard_db.private_ipv4
-}
-
-output "db_port" {
-  value = civo_database.drupal_dashboard_db.port
-}
-
-output "db_username" {
-  value = civo_database.drupal_dashboard_db.username
-}
-
-# TODO: Convert to secret.
-output "db_password" {
-  value = civo_database.drupal_dashboard_db.password
-  sensitive = true
-}

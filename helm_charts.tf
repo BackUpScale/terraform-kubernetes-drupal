@@ -47,8 +47,7 @@ resource "helm_release" "bitnami_drupal" {
         port = civo_database.drupal_dashboard_db.port
         user = civo_database.drupal_dashboard_db.username
         database = civo_database.drupal_dashboard_db.name
-        # TODO: Connect this to the secret
-        existingSecret = kubernetes_secret.db_secret.metadata[0].name
+        existingSecret = kubernetes_secret.drupal_secrets.metadata[0].name
       }
       metrics = {
         enabled = true
