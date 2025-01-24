@@ -18,9 +18,11 @@ resource "helm_release" "bitnami_drupal" {
         pullPolicy = "Always"
         image_pull_secrets = [kubernetes_secret.container_registry_secret.metadata[0].name]
       }
+      # We don't want the default PVC because we want the code in the image, not on the PVC.
       persistence = {
         enabled = false
       }
+      # Add our own PVC for storing the Drupal file system.
       extraVolumes = [
         {
           name = var.drupal_files_volume_name
@@ -35,6 +37,25 @@ resource "helm_release" "bitnami_drupal" {
           mountPath = "${var.drupal_root_directory}/${var.drupal_files_directory}"
         }
       ]
+      replicaCount = 2
+      allowEmptyPassword = false
+      mariadb = {
+        enabled = false
+      }
+      externalDatabase = {
+        host = civo_database.drupal_dashboard_db.private_ipv4
+        port = civo_database.drupal_dashboard_db.port
+        user = civo_database.drupal_dashboard_db.username
+        database = civo_database.drupal_dashboard_db.name
+        # TODO: Connect this to the secret
+        existingSecret = kubernetes_secret.db_secret.metadata[0].name
+      }
+      metrics = {
+        enabled = true
+        serviceMonitor = {
+          enabled = true
+        }
+      }
     })
   ]
 }
