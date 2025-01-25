@@ -2,7 +2,7 @@ terraform {
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 1.23"
+      version = "~> 2.31"
     }
     civo = {
       source = "civo/civo"
