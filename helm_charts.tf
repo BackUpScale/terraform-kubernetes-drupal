@@ -12,6 +12,11 @@ resource "helm_release" "bitnami_drupal" {
     # we can place comments in here.  Temporarily switch to jsonencode() if you
     # need a cleaner diff.
     yamlencode({
+      global = {
+        security = {
+          allowInsecureImages = true
+        }
+      }
       image = {
         registry   = "registry.gitlab.com"
         repository = "backupscale/infrastructure/drupal-dashboard-${var.environment}:latest"
