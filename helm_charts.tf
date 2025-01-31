@@ -19,7 +19,8 @@ resource "helm_release" "bitnami_drupal" {
       }
       image = {
         registry   = "registry.gitlab.com"
-        repository = "backupscale/infrastructure/drupal-dashboard-${var.environment}:latest"
+        repository = "backupscale/infrastructure/drupal-dashboard-${var.environment}"
+        tag        = "latest"
         pullPolicy = "Always"
         image_pull_secrets = [kubernetes_secret.container_registry_secret.metadata[0].name]
       }
