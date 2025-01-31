@@ -7,6 +7,7 @@ variable "drupal_dashboard_namespace" {}
 variable "container_registry_credentials" {}
 variable "firewall_id" {}
 variable "network_id" {}
+variable "db_region" {}
 
 # Optionals with defaults.
  variable "drupal_files_volume_name" {
