@@ -22,7 +22,7 @@ resource "helm_release" "bitnami_drupal" {
         repository = "backupscale/infrastructure/drupal-dashboard-${var.environment}"
         tag        = "latest"
         pullPolicy = "Always"
-        image_pull_secrets = [kubernetes_secret.container_registry_secret.metadata[0].name]
+        pullSecrets = [kubernetes_secret.container_registry_secret.metadata[0].name]
       }
       # We don't want the default PVC because we want the code in the image, not on the PVC.
       persistence = {
