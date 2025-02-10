@@ -25,11 +25,15 @@ resource "civo_database" "drupal_dashboard_db" {
   # TODO: Remove this when it inherits from the provider.
   # TODO: Also remove the variable including from root module call.
   region = var.db_region
-  name    = "drupal-dashboard-db"
+  name    = "Drupal dashboard"
   size    = element(data.civo_size.small.sizes, 0).name
   engine  = element(data.civo_database_version.mysql.versions, 0).engine
   version = element(data.civo_database_version.mysql.versions, 0).version
   nodes   = 3
   firewall_id = var.firewall_id
   network_id = var.network_id
+}
+
+resource "mysql_database" "app" {
+  name = "my_awesome_app"
 }

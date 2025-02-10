@@ -5,6 +5,10 @@ resource "helm_release" "bitnami_drupal" {
   chart      = "drupal"
   version    = var.helm_chart_version
 
+  # TODO: WARNING: There are "resources" sections in the chart not set. Using "resourcesPreset" is not recommended for production. For production installations, please set the following values according to your workload needs:
+  #   * metrics.resources
+  #   * resources
+  # +info https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # TODO: Set values as per
   # https://github.com/bitnami/charts/tree/main/bitnami/drupal#parameters
   values = [
@@ -52,7 +56,7 @@ resource "helm_release" "bitnami_drupal" {
         host = civo_database.drupal_dashboard_db.private_ipv4
         port = civo_database.drupal_dashboard_db.port
         user = civo_database.drupal_dashboard_db.username
-        database = civo_database.drupal_dashboard_db.name
+        database = "drupal_dashboard"
         existingSecret = kubernetes_secret.drupal_secrets.metadata[0].name
       }
       metrics = {

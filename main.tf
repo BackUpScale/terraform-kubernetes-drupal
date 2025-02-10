@@ -8,5 +8,9 @@ terraform {
       source = "civo/civo"
       version = "~> 1.0"
     }
+    mysql = {
+      source  = "petoju/mysql"
+      version = "~> 3.0"
+    }
   }
 }
