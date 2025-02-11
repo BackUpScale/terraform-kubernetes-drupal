@@ -15,7 +15,7 @@ resource "kubernetes_secret" "drupal_secrets" {
     namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
   }
   data = {
-    db-password = civo_database.drupal_dashboard_db.password
+    db-password = var.db_password
   }
   type = "Opaque"
 }

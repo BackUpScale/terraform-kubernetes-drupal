@@ -1,39 +1,32 @@
-# Query small instance size
-data "civo_size" "small" {
-  filter {
-    key      = "name"
-    # `civo database size`
-    values   = ["db.small"]
-    match_by = "re"
-  }
-  filter {
-    key    = "type"
-    values = ["database"]
+resource "mysql_database" "drupal_dashboard" {
+  name = "drupal_dashboard"
+  lifecycle {
+    prevent_destroy = var.prevent_db_destruction
   }
 }
 
-# Query database version
-data "civo_database_version" "mysql" {
-  filter {
-    key    = "engine"
-    # `civo database engine`
-    values = ["mysql"]
-  }
+resource "mysql_user" "drupal" {
+  user = "drupal"
+  host = "%"
+  plaintext_password = var.db_password
 }
 
-resource "civo_database" "drupal_dashboard_db" {
-  # TODO: Remove this when it inherits from the provider.
-  # TODO: Also remove the variable including from root module call.
-  region = var.db_region
-  name    = "Drupal dashboard"
-  size    = element(data.civo_size.small.sizes, 0).name
-  engine  = element(data.civo_database_version.mysql.versions, 0).engine
-  version = element(data.civo_database_version.mysql.versions, 0).version
-  nodes   = 3
-  firewall_id = var.firewall_id
-  network_id = var.network_id
-}
-
-resource "mysql_database" "app" {
-  name = "my_awesome_app"
+resource "mysql_grant" "drupal_grant" {
+  user       = mysql_user.drupal.user
+  host       = mysql_user.drupal.host
+  database   = mysql_database.drupal_dashboard.name
+  privileges = [
+    "SELECT",
+    "INSERT",
+    "UPDATE",
+    "DELETE",
+    "CREATE",
+    "DROP",
+    "INDEX",
+    "ALTER",
+    "CREATE TEMPORARY TABLES",
+    "LOCK TABLES",
+    "TRIGGER",
+    "CREATE VIEW",
+  ]
 }

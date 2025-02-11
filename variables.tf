@@ -1,13 +1,12 @@
 # Mandatory inputs from parent module.
 variable "cluster_terraform_id" {}
 variable "environment" {}
+variable "prevent_db_destruction" {}
 variable "helm_chart_version" {}
 variable "drupal_files_storage_class" {}
 variable "drupal_dashboard_namespace" {}
 variable "container_registry_credentials" {}
-variable "firewall_id" {}
-variable "network_id" {}
-variable "db_region" {}
+variable "db_password" {}
 
 # Optionals with defaults.
  variable "drupal_files_volume_name" {
