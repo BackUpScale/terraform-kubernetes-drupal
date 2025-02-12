@@ -53,10 +53,10 @@ resource "helm_release" "bitnami_drupal" {
         enabled = false
       }
       externalDatabase = {
-        host = civo_database.drupal_dashboard_db.private_ipv4
-        port = civo_database.drupal_dashboard_db.port
-        user = civo_database.drupal_dashboard_db.username
-        database = "drupal_dashboard"
+        host = var.db_host
+        port = var.db_port
+        user = var.db_username
+        database = var.db_schema
         existingSecret = kubernetes_secret.drupal_secrets.metadata[0].name
       }
       metrics = {
