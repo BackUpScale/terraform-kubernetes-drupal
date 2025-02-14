@@ -1,7 +1,7 @@
 # Mandatory inputs from parent module.
 variable "cluster_terraform_id" {}
 variable "environment" {}
-variable "prevent_db_destruction" {}
+variable "environment_is_production" {}
 variable "helm_chart_version" {}
 variable "drupal_files_storage_class" {}
 variable "drupal_dashboard_namespace" {}
