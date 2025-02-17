@@ -37,7 +37,7 @@ resource "helm_release" "bitnami_drupal" {
         {
           name = var.drupal_files_volume_name
           persistentVolumeClaim = {
-            claimName = var.drupal_files_pvc_name
+            claimName = kubernetes_persistent_volume_claim.drupal_files_pvc.metadata[0].name
           }
         }
       ]
