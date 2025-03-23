@@ -41,6 +41,13 @@ resource "helm_release" "bitnami_drupal" {
             value = "no"
           }
         ]
+        # Temporarily disable probes to allow for DB import before starting?
+        livenessProbe = {
+          enabled = true
+        }
+        readinessProbe = {
+          enabled = true
+        }
         # Add our own PVC for storing the Drupal file system.
         # extraVolumes = [
         #   {
