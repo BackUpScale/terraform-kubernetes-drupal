@@ -28,6 +28,7 @@ resource "helm_release" "bitnami_drupal" {
           tag        = "latest"
           pullPolicy = "Always"
           pullSecrets = [kubernetes_secret.container_registry_secret.metadata[0].name]
+          debug = true
         }
         # Do we want the default PVC?
         persistence = {
