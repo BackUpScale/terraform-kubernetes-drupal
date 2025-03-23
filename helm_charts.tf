@@ -33,6 +33,7 @@ resource "helm_release" "bitnami_drupal" {
         # Do we want the default PVC?
         persistence = {
           enabled = true
+          accessModes = ["ReadWriteMany"]
         }
         extraEnvVars = [
           {
