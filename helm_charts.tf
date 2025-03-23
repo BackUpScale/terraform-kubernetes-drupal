@@ -91,6 +91,16 @@ resource "helm_release" "bitnami_drupal" {
           }
         }
         drupalSkipInstall = false
+        resources = {
+          limits = {
+            cpu    = "500m"
+            memory = "3.5Gi"
+          }
+          requests = {
+            cpu    = "250m"
+            memory = "512Mi"
+          }
+        }
         # metrics = {
         #   enabled = true
         #   serviceMonitor = {
