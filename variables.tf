@@ -6,8 +6,10 @@ variable "helm_chart_version" {}
 variable "drupal_files_storage_class" {}
 variable "drupal_dashboard_namespace" {}
 variable "container_registry_credentials" {}
-variable "db_host" {}
-variable "db_port" {}
+variable "db_storage_class" {}
+variable "db_admin_password" {}
+# variable "db_host" {}
+# variable "db_port" {}
 variable "db_password" {}
 
 # Optionals with defaults.
@@ -31,6 +33,10 @@ variable "drupal_files_pvc_name" {
   type    = string
   default = "drupal-files-pvc"
 }
+variable "drupal_db_storage_size" {
+  type    = string
+  default = "40Gi"
+}
 variable "drupal_secret_collection_name" {
   type    = string
   default = "drupal-secrets"
@@ -41,7 +47,15 @@ variable "db_username" {
 }
 variable "db_schema" {
   type    = string
-  default = "drupal_dashboard"
+  default = "bitnami_drupal"
+}
+variable "volume_subdirectory_for_drupal_files" {
+  type    = string
+  default = "drupal-file-system"
+}
+variable "db_import_config_map_name" {
+  type    = string
+  default = "drupal-db-import"
 }
 
 # Indicators.
