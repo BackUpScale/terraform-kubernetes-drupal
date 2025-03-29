@@ -118,6 +118,7 @@ resource "kubernetes_persistent_volume_claim" "mariadb_pvc" {
   }
   spec {
     access_modes = ["ReadWriteOnce"]
+    storage_class_name = var.db_storage_class
     resources {
       requests = {
         storage = var.drupal_db_storage_size
