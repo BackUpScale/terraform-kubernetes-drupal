@@ -8,6 +8,7 @@ terraform {
       source = "civo/civo"
       version = "~> 1.0"
     }
+    # TODO: Remove this?
     mysql = {
       source  = "petoju/mysql"
       version = "~> 3.0"
