@@ -10,6 +10,7 @@ variable "db_storage_class" {}
 variable "db_admin_password" {}
 # variable "db_host" {}
 variable "db_password" {}
+variable "hash_salt" {}
 variable "drupal_container_image_url" {
   description = "Name and tag for the built Drupal image"
   type        = string
