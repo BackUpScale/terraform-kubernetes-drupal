@@ -4,13 +4,20 @@ variable "environment" {}
 variable "environment_is_production" {}
 variable "helm_chart_version" {}
 variable "drupal_files_storage_class" {}
-variable "drupal_dashboard_namespace" {}
+variable "namespace" {}
 variable "container_registry_credentials" {}
 variable "db_storage_class" {}
 variable "db_admin_password" {}
 # variable "db_host" {}
-# variable "db_port" {}
 variable "db_password" {}
+variable "drupal_container_image_url" {
+  description = "Name and tag for the built Drupal image"
+  type        = string
+}
+variable "db_image" {
+  description = "Docker image for MariaDB"
+  type        = string
+}
 
 # Optionals with defaults.
  variable "drupal_files_volume_name" {
@@ -19,7 +26,7 @@ variable "db_password" {}
  }
 variable "drupal_root_directory" {
   type    = string
-  default = "/opt/bitnami/drupal"
+  default = "/var/www/web"
 }
 variable "drupal_files_directory" {
   type    = string
@@ -37,26 +44,35 @@ variable "drupal_db_storage_size" {
   type    = string
   default = "40Gi"
 }
+variable "db_port" {
+  type = number
+  default = 3306
+}
 variable "drupal_secret_collection_name" {
   type    = string
   default = "drupal-secrets"
 }
 variable "db_username" {
   type    = string
-  default = "drupal_dashboard"
+  default = "dashboard"
 }
 variable "db_schema" {
   type    = string
-  default = "bitnami_drupal"
+  default = "drupal"
 }
 variable "volume_subdirectory_for_drupal_files" {
   type    = string
   default = "drupal-file-system"
 }
-variable "db_import_config_map_name" {
-  type    = string
-  default = "drupal-db-import"
+variable "drupal_replicas" {
+  description = "Number of Drupal pod replicas"
+  type        = number
+  default     = 2
 }
+# variable "db_import_config_map_name" {
+#   type    = string
+#   default = "drupal-db-import"
+# }
 
 # Indicators.
 variable "longhorn_ready" {

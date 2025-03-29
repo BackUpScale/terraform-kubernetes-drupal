@@ -19,3 +19,4 @@ resource "kubernetes_secret" "container_registry_secret" {
 #   }
 #   type = "Opaque"
 # }
+

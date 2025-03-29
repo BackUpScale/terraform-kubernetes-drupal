@@ -40,3 +40,105 @@
 #     "CREATE VIEW",
 #   ]
 # }
+
+// mariadb.tf
+
+# MariaDB Deployment
+resource "kubernetes_deployment" "mariadb" {
+  metadata {
+    name      = "mariadb"
+    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+    labels = {
+      app = "mariadb"
+    }
+  }
+  spec {
+    replicas = 3
+
+    selector {
+      match_labels = {
+        app = "mariadb"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "mariadb"
+        }
+      }
+      spec {
+        container {
+          name  = "mariadb"
+          image = var.db_image
+
+          env {
+            name  = "MYSQL_ROOT_PASSWORD"
+            value = var.db_admin_password
+          }
+          env {
+            name  = "MYSQL_DATABASE"
+            value = var.db_schema
+          }
+          env {
+            name  = "MYSQL_USER"
+            value = var.db_username
+          }
+          env {
+            name  = "MYSQL_PASSWORD"
+            value = var.db_password
+          }
+
+          port {
+            container_port = var.db_port
+          }
+
+          volume_mount {
+            name       = "mariadb-data"
+            mount_path = "/var/lib/mysql"
+          }
+        }
+
+        volume {
+          name = "mariadb-data"
+          persistent_volume_claim {
+            claim_name = kubernetes_persistent_volume_claim.mariadb_pvc.metadata[0].name
+          }
+        }
+      }
+    }
+  }
+}
+
+# MariaDB PVC
+resource "kubernetes_persistent_volume_claim" "mariadb_pvc" {
+  metadata {
+    name      = "mariadb-data"
+    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  }
+  spec {
+    access_modes = ["ReadWriteOnce"]
+    resources {
+      requests = {
+        storage = var.drupal_db_storage_size
+      }
+    }
+  }
+}
+
+# MariaDB Service
+resource "kubernetes_service" "mariadb" {
+  metadata {
+    name      = "mariadb"
+    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  }
+  spec {
+    selector = {
+      app = "mariadb"
+    }
+    port {
+      port        = var.db_port
+      target_port = var.db_port
+    }
+  }
+}
