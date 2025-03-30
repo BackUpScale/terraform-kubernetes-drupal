@@ -53,6 +53,10 @@ variable "drupal_secret_collection_name" {
   type    = string
   default = "drupal-secrets"
 }
+variable "db_server_secrets_name" {
+  type = string
+  default = "db-server-secrets"
+}
 variable "db_username" {
   type    = string
   default = "dashboard"

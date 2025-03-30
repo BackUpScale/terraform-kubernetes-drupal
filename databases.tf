@@ -73,20 +73,40 @@ resource "kubernetes_deployment" "mariadb" {
           image = var.db_image
 
           env {
-            name  = "MYSQL_ROOT_PASSWORD"
-            value = var.db_admin_password
+            name = "MYSQL_ROOT_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.db_server_secrets.metadata[0].name
+                key  = "database_admin_password"
+              }
+            }
           }
           env {
-            name  = "MYSQL_DATABASE"
-            value = var.db_schema
+            name = "MYSQL_DATABASE"
+            value_from {
+              config_map_key_ref {
+                name = kubernetes_config_map.app_variables.metadata[0].name
+                key  = "DATABASE_NAME"
+              }
+            }
           }
           env {
-            name  = "MYSQL_USER"
-            value = var.db_username
+            name = "MYSQL_USER"
+            value_from {
+              config_map_key_ref {
+                name = kubernetes_config_map.app_variables.metadata[0].name
+                key  = "DATABASE_USER"
+              }
+            }
           }
           env {
-            name  = "MYSQL_PASSWORD"
-            value = var.db_password
+            name = "MYSQL_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.drupal_secrets.metadata[0].name
+                key  = "DATABASE_PASSWORD"
+              }
+            }
           }
 
           port {
