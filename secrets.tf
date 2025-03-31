@@ -21,13 +21,13 @@ resource "kubernetes_secret" "drupal_secrets" {
   type = "Opaque"
 }
 
-resource "kubernetes_secret" "db_server_secrets" {
-  metadata {
-    name      = var.db_server_secrets_name
-    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
-  }
-  data = {
-    database_admin_password = var.db_admin_password
-  }
-  type = "Opaque"
-}
+# resource "kubernetes_secret" "db_server_secrets" {
+#   metadata {
+#     name      = var.db_server_secrets_name
+#     namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+#   }
+#   data = {
+#     database_admin_password = var.db_admin_password
+#   }
+#   type = "Opaque"
+# }

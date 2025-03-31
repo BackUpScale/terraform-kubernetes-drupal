@@ -6,7 +6,7 @@ resource "kubernetes_config_map" "app_variables" {
   data = {
     DATABASE_NAME  = var.db_schema
     DATABASE_USER  = var.db_username
-    DATABASE_HOST  = kubernetes_service.mariadb.spec[0].cluster_ip
+    DATABASE_HOST  = data.kubernetes_service.mariadb.spec[0].cluster_ip
     DATABASE_PORT  = var.db_port
   }
 }
