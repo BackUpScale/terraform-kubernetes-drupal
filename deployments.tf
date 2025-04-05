@@ -37,7 +37,7 @@ resource "kubernetes_deployment" "drupal" {
             name       = var.drupal_files_volume_name
             mount_path = "${var.drupal_root_directory}/${var.drupal_files_directory}"
           }
-          resources = {
+          resources {
             limits = {
               cpu    = "500m"
               memory = "2Gi"
