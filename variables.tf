@@ -27,7 +27,7 @@ variable "db_image" {
  }
 variable "drupal_root_directory" {
   type    = string
-  default = "/var/www/web"
+  default = "/app/web"
 }
 variable "drupal_files_directory" {
   type    = string
