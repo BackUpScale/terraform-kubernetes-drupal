@@ -115,7 +115,7 @@ resource "helm_release" "mariadb" {
   name       = "mariadb"
   namespace  = kubernetes_namespace.drupal_dashboard.metadata[0].name
   # https://artifacthub.io/packages/helm/bitnami/mariadb
-  repository = "https://charts.bitnami.com/bitnami"
+  repository = "oci://registry-1.docker.io/bitnamicharts"
   chart      = "mariadb"
   version    = "20.4.2"
 
