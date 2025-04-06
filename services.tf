@@ -17,10 +17,9 @@ resource "kubernetes_service" "drupal_service" {
   }
 }
 
-data "kubernetes_service" "mariadb" {
+data "kubernetes_service" "mariadb_primary" {
   metadata {
-    # Assuming the Helm chart creates a service with the same name as the release.
-    name      = helm_release.mariadb.name
+    name      = "mariadb-primary"
     namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
   }
   depends_on = [helm_release.mariadb]
