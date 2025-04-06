@@ -106,7 +106,7 @@ resource "kubernetes_deployment" "drupal" {
             name = "TRUSTED_HOST_PATTERNS"
             value_from {
               config_map_key_ref {
-                name = kubernetes_secret.drupal_secrets.metadata[0].name
+                name = kubernetes_config_map.app_variables.metadata[0].name
                 key  = "DRUPAL_TRUSTED_HOST_PATTERNS"
               }
             }
@@ -115,7 +115,7 @@ resource "kubernetes_deployment" "drupal" {
             name = "REVERSE_PROXY"
             value_from {
               config_map_key_ref {
-                name = kubernetes_secret.drupal_secrets.metadata[0].name
+                name = kubernetes_config_map.app_variables.metadata[0].name
                 key  = "DRUPAL_REVERSE_PROXY"
               }
             }
@@ -124,7 +124,7 @@ resource "kubernetes_deployment" "drupal" {
             name = "REVERSE_PROXY_ADDRESSES"
             value_from {
               config_map_key_ref {
-                name = kubernetes_secret.drupal_secrets.metadata[0].name
+                name = kubernetes_config_map.app_variables.metadata[0].name
                 key  = "DRUPAL_REVERSE_PROXY_ADDRESSES"
               }
             }
