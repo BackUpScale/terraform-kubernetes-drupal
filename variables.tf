@@ -2,7 +2,7 @@
 variable "cluster_terraform_id" {}
 variable "environment" {}
 variable "environment_is_production" {}
-variable "host_name" {
+variable "host_names" {
   type        = string
 }
 variable "helm_chart_version" {}

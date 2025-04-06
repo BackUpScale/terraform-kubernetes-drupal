@@ -8,7 +8,7 @@ resource "kubernetes_config_map" "app_variables" {
     DATABASE_USER = var.db_username
     DATABASE_HOST = data.kubernetes_service.mariadb_primary.spec[0].cluster_ip
     DATABASE_PORT = var.db_port
-    DRUPAL_TRUSTED_HOST_PATTERNS = var.host_name
+    DRUPAL_TRUSTED_HOST_PATTERNS = var.host_names
     # TODO: Set these up.
     DRUPAL_REVERSE_PROXY = "false"
     DRUPAL_REVERSE_PROXY_ADDRESSES = ""
