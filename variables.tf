@@ -2,6 +2,9 @@
 variable "cluster_terraform_id" {}
 variable "environment" {}
 variable "environment_is_production" {}
+variable "host_name" {
+  type        = string
+}
 variable "helm_chart_version" {}
 variable "drupal_files_storage_class" {}
 variable "namespace" {}

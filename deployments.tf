@@ -102,6 +102,33 @@ resource "kubernetes_deployment" "drupal" {
               }
             }
           }
+          env {
+            name = "TRUSTED_HOST_PATTERNS"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.drupal_secrets.metadata[0].name
+                key  = "DRUPAL_TRUSTED_HOST_PATTERNS"
+              }
+            }
+          }
+          env {
+            name = "REVERSE_PROXY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.drupal_secrets.metadata[0].name
+                key  = "DRUPAL_REVERSE_PROXY"
+              }
+            }
+          }
+          env {
+            name = "REVERSE_PROXY_ADDRESSES"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.drupal_secrets.metadata[0].name
+                key  = "DRUPAL_REVERSE_PROXY_ADDRESSES"
+              }
+            }
+          }
         }
 
         volume {
