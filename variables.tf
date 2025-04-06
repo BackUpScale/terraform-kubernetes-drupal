@@ -22,6 +22,9 @@ variable "db_image" {
   description = "Docker image for MariaDB"
   type        = string
 }
+variable "reverse_proxy_address_ranges" {
+  type    = list(string)
+}
 
 # Optionals with defaults.
  variable "drupal_files_volume_name" {
