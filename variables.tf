@@ -5,7 +5,6 @@ variable "environment_is_production" {}
 variable "host_names" {
   type        = string
 }
-variable "helm_chart_version" {}
 variable "drupal_files_storage_class" {}
 variable "namespace" {}
 variable "container_registry_credentials" {}
@@ -80,10 +79,6 @@ variable "drupal_replicas" {
   type        = number
   default     = 2
 }
-# variable "db_import_config_map_name" {
-#   type    = string
-#   default = "drupal-db-import"
-# }
 
 # Indicators.
 variable "longhorn_ready" {
