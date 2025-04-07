@@ -111,15 +111,15 @@ resource "kubernetes_deployment" "drupal" {
               }
             }
           }
-          env {
-            name = "REVERSE_PROXY"
-            value_from {
-              config_map_key_ref {
-                name = kubernetes_config_map.app_variables.metadata[0].name
-                key  = "DRUPAL_REVERSE_PROXY"
-              }
-            }
-          }
+          # env {
+          #   name = "REVERSE_PROXY"
+          #   value_from {
+          #     config_map_key_ref {
+          #       name = kubernetes_config_map.app_variables.metadata[0].name
+          #       key  = "DRUPAL_REVERSE_PROXY"
+          #     }
+          #   }
+          # }
           env {
             name = "REVERSE_PROXY_ADDRESSES"
             value_from {

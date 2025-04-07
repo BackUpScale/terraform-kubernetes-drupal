@@ -10,7 +10,7 @@ resource "kubernetes_config_map" "app_variables" {
     DATABASE_PORT = var.db_port
     DRUPAL_TRUSTED_HOST_PATTERNS = var.host_names
     // To enable, set this anything that evaluates to TRUE in PHP.
-    DRUPAL_REVERSE_PROXY = "true"
+    # DRUPAL_REVERSE_PROXY = "true"
     DRUPAL_REVERSE_PROXY_ADDRESSES = join(",", var.reverse_proxy_address_ranges)
   }
 }
