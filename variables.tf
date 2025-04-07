@@ -1,7 +1,6 @@
 # Mandatory inputs from parent module.
 variable "cluster_terraform_id" {}
 variable "environment" {}
-variable "environment_is_production" {}
 variable "host_names" {
   type        = string
 }
@@ -10,15 +9,10 @@ variable "namespace" {}
 variable "container_registry_credentials" {}
 variable "db_storage_class" {}
 variable "db_admin_password" {}
-# variable "db_host" {}
 variable "db_password" {}
 variable "hash_salt" {}
 variable "drupal_container_image_url" {
   description = "Name and tag for the built Drupal image"
-  type        = string
-}
-variable "db_image" {
-  description = "Docker image for MariaDB"
   type        = string
 }
 variable "reverse_proxy_address_ranges" {
@@ -58,10 +52,6 @@ variable "drupal_secret_collection_name" {
   type    = string
   default = "drupal-secrets"
 }
-variable "db_server_secrets_name" {
-  type = string
-  default = "db-server-secrets"
-}
 variable "db_username" {
   type    = string
   default = "dashboard"
@@ -69,10 +59,6 @@ variable "db_username" {
 variable "db_schema" {
   type    = string
   default = "drupal"
-}
-variable "volume_subdirectory_for_drupal_files" {
-  type    = string
-  default = "drupal-file-system"
 }
 variable "drupal_replicas" {
   description = "Number of Drupal pod replicas"

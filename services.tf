@@ -1,5 +1,3 @@
-// service.tf
-
 resource "kubernetes_service" "drupal_service" {
   metadata {
     name      = "drupal-service"
