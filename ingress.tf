@@ -59,7 +59,7 @@ resource "helm_release" "traefik" {
 # @see https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/
 resource "kubernetes_manifest" "drupal_ingressroute" {
   depends_on = [helm_release.traefik]
-  manifest = yamlencode({
+  manifest = {
     apiVersion = "traefik.io/v1alpha1"
     kind       = "IngressRoute"
     metadata = {
@@ -80,5 +80,5 @@ resource "kubernetes_manifest" "drupal_ingressroute" {
         certResolver = var.environment_is_production ? "production" : "staging"
       }
     }
-  })
+  }
 }
