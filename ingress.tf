@@ -13,8 +13,16 @@ resource "helm_release" "traefik" {
 
   # Redirect all HTTP to HTTPS ("web" -> "websecure")
   set {
-    name  = "ports.web.redirectTo"
+    name  = "ports.web.redirections.entryPoint.to"
     value = "websecure"
+  }
+  set {
+    name  = "ports.web.redirections.entryPoint.scheme"
+    value = "https"
+  }
+  set {
+    name  = "ports.web.redirections.entryPoint.permanent"
+    value = "true"
   }
 
   # Enable TLS on the secure entrypoint
