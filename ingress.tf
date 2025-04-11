@@ -1,7 +1,7 @@
 resource "helm_release" "traefik" {
   name       = "traefik"
   namespace  = kubernetes_namespace.drupal_dashboard.metadata[0].name
-  repository = "oci://ghcr.io/traefik/helm/traefik"
+  repository = "https://traefik.github.io/charts"
   chart      = "traefik"
   version    = "35.0.0"
 
