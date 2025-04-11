@@ -22,3 +22,13 @@ data "kubernetes_service" "mariadb_primary" {
   }
   depends_on = [helm_release.mariadb]
 }
+
+data "kubernetes_service" "traefik" {
+  metadata {
+    name      = helm_release.traefik.name
+    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  }
+  # depends_on = [
+  #   helm_release.traefik
+  # ]
+}
