@@ -8,14 +8,8 @@ output "service_cluster_ip" {
   value       = kubernetes_service.drupal_service.spec[0].cluster_ip
 }
 
-# Probably not needed.
-# output "drupal_ingress_host" {
-#   description = "Host name used by the external Ingress"
-#   value       = var.canonical_hostname
-#   depends_on = [kubernetes_manifest.drupal_ingressroute]
-# }
-
 output "service_public_ip" {
   description = "Public IP address for the Traefik load balancer Drupal service."
   value       = data.kubernetes_service.traefik.status.0.load_balancer.0.ingress.0.ip
+  depends_on = [kubernetes_manifest.drupal_ingressroute]
 }
