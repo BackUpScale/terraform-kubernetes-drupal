@@ -31,7 +31,7 @@ resource "kubernetes_deployment" "drupal" {
           image = var.drupal_container_image_url
           image_pull_policy = "Always"
           port {
-            container_port = 80
+            container_port = var.http_port
           }
           volume_mount {
             name       = var.drupal_files_volume_name

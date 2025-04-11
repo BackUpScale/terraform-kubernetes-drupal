@@ -1,12 +1,9 @@
 resource "helm_release" "traefik" {
-  name             = "traefik"
-  namespace        = "traefik"
-  create_namespace = true
-
-  repository = "https://helm.traefik.io/traefik"
+  name       = "traefik"
+  namespace  = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  repository = "oci://ghcr.io/traefik/helm/traefik"
   chart      = "traefik"
-  # Pin to a known-good version or "latest"
-  # version    = "v10.8.0"
+  version    = "35.0.0"
 
   # Key configuration: let Traefik create a type=LoadBalancer service
   set {
@@ -29,7 +26,7 @@ resource "helm_release" "traefik" {
   # Let’s Encrypt ACME settings
   set {
     name  = "certificatesResolvers.default.acme.email"
-    value = "you@example.com"     # <--- Your email
+    value = var.technical_contact_email
   }
   set {
     name  = "certificatesResolvers.default.acme.storage"
@@ -39,38 +36,40 @@ resource "helm_release" "traefik" {
     name  = "certificatesResolvers.default.acme.httpChallenge.entryPoint"
     value = "web"
   }
+  set {
+    name  = "certificatesResolvers.staging.acme.caServer"
+    value = "https://acme-staging-v02.api.letsencrypt.org/directory"
+  }
+  set {
+    name  = "certificatesResolvers.production.acme.caServer"
+    value = "https://acme-v02.api.letsencrypt.org/directory"
+  }
 }
 
-#####################################################
-# Drupal IngressRoute
-#####################################################
-
 # The IngressRoute CRD comes from Traefik, which the Helm chart installs
-# This resource will expose your Drupal service at drupal.example.com.
+# This resource will expose your Drupal service at the route match.
+# @see https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/
 resource "kubernetes_manifest" "drupal_ingressroute" {
-  depends_on = [
-    helm_release.traefik
-  ]
-
+  depends_on = [helm_release.traefik]
   manifest = yamlencode({
-    apiVersion = "traefik.containo.us/v1alpha1"
+    apiVersion = "traefik.io/v1alpha1"
     kind       = "IngressRoute"
     metadata = {
       name      = "drupal"
-      namespace = "default"
+      namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
     }
     spec = {
       entryPoints = ["web", "websecure"]
       routes = [{
-        match = "Host(`drupal.example.com`)"  # <--- Change to your domain
+        match = "Host(`${var.canonical_hostname}`)"
         kind  = "Rule"
         services = [{
-          name = "drupal-service"             # <--- The name of your Drupal Service
-          port = 80
+          name = var.kubernetes_drupal_service_name
+          port = var.http_port
         }]
       }]
       tls = {
-        certResolver = "default"
+        certResolver = var.environment_is_production ? "production" : "staging"
       }
     }
   })

@@ -1,8 +1,14 @@
 # Mandatory inputs from parent module.
 variable "cluster_terraform_id" {}
-variable "environment" {}
+variable "environment_is_production" {
+  default = false
+  type = bool
+}
 variable "host_names" {
-  type        = string
+  type = string
+}
+variable "canonical_hostname" {
+  type = string
 }
 variable "drupal_files_storage_class" {}
 variable "namespace" {}
@@ -17,6 +23,9 @@ variable "drupal_container_image_url" {
 }
 variable "reverse_proxy_address_ranges" {
   type    = list(string)
+}
+variable "technical_contact_email" {
+  type = string
 }
 
 # Optionals with defaults.
@@ -64,6 +73,14 @@ variable "drupal_replicas" {
   description = "Number of Drupal pod replicas"
   type        = number
   default     = 2
+}
+variable "kubernetes_drupal_service_name" {
+  type    = string
+  default = "drupal-service"
+}
+variable "http_port" {
+  type = number
+  default = 80
 }
 
 # Indicators.

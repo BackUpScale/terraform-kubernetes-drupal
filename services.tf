@@ -1,6 +1,6 @@
 resource "kubernetes_service" "drupal_service" {
   metadata {
-    name      = "drupal-service"
+    name      = var.kubernetes_drupal_service_name
     namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
   }
   spec {
@@ -8,8 +8,8 @@ resource "kubernetes_service" "drupal_service" {
       app = "drupal"
     }
     port {
-      port        = 80
-      target_port = 80
+      port        = var.http_port
+      target_port = var.http_port
     }
     type = "ClusterIP"
   }
