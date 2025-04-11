@@ -58,6 +58,13 @@ resource "helm_release" "traefik" {
 # This resource will expose your Drupal service at the route match.
 # @see https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/
 resource "kubernetes_manifest" "drupal_ingressroute" {
+  # TODO: Remove this warning after a fix gets released.
+  # Even with this explicit dependency, we still have problems:
+  # `cannot create REST client: no client config` &
+  # `API did not recognize GroupVersionKind from manifest (CRD may not be installed)`
+  # So this resource must be commented out until the first `apply` completes,
+  # and then run again afterwards.  This is because unknown values block
+  # successful planning: https://github.com/hashicorp/terraform/issues/30937
   depends_on = [helm_release.traefik]
   manifest = {
     apiVersion = "traefik.io/v1alpha1"
