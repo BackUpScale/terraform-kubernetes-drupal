@@ -27,6 +27,9 @@ variable "reverse_proxy_address_ranges" {
 variable "technical_contact_email" {
   type = string
 }
+variable "acme_storage_class" {
+  type = string
+}
 
 # Optionals with defaults.
  variable "drupal_files_volume_name" {
@@ -81,6 +84,14 @@ variable "kubernetes_drupal_service_name" {
 variable "http_port" {
   type = number
   default = 80
+}
+variable "letsencrypt_staging_environment_name" {
+  type = string
+  default = "staging"
+}
+variable "letsencrypt_production_environment_name" {
+  type = string
+  default = "production"
 }
 
 # Indicators.

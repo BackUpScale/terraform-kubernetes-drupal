@@ -5,13 +5,10 @@ resource "helm_release" "traefik" {
   chart      = "traefik"
   version    = "35.0.0"
 
-  # Key configuration: let Traefik create a type=LoadBalancer service
-  set {
-    name  = "service.type"
-    value = "LoadBalancer"
-  }
-
-  # Redirect all HTTP to HTTPS ("web" -> "websecure")
+  # set {
+  #   name  = "service.type"
+  #   value = "LoadBalancer"
+  # }
   set {
     name  = "ports.web.redirections.entryPoint.to"
     value = "websecure"
@@ -24,34 +21,70 @@ resource "helm_release" "traefik" {
     name  = "ports.web.redirections.entryPoint.permanent"
     value = "true"
   }
-
-  # Enable TLS on the secure entrypoint
+  # set {
+  #   name  = "ports.websecure.tls.enabled"
+  #   value = "true"
+  # }
+  # set {
+  #   name  = "certificatesResolvers.default.acme.email"
+  #   value = var.technical_contact_email
+  # }
+  # set {
+  #   name  = "certificatesResolvers.letsencrypt.email"
+  #   value = var.technical_contact_email
+  # }
+  # set {
+  #   name  = "certificatesResolvers.default.acme.storage"
+  #   value = "/acme.json"
+  # }
+  # set {
+  #   name  = "certResolvers.letsencrypt.storage"
+  #   value = "/acme.json"
+  # }
+  # set {
+  #   name  = "certificatesResolvers.default.acme.httpChallenge.entryPoint"
+  #   value = "web"
+  # }
   set {
-    name  = "ports.websecure.tls.enabled"
-    value = "true"
-  }
-
-  # Let’s Encrypt ACME settings
-  set {
-    name  = "certificatesResolvers.default.acme.email"
-    value = var.technical_contact_email
-  }
-  set {
-    name  = "certificatesResolvers.default.acme.storage"
-    value = "/acme.json"
-  }
-  set {
-    name  = "certificatesResolvers.default.acme.httpChallenge.entryPoint"
-    value = "web"
-  }
-  set {
-    name  = "certificatesResolvers.staging.acme.caServer"
+    name  = "certificatesResolvers.${var.letsencrypt_staging_environment_name}.acme.caServer"
     value = "https://acme-staging-v02.api.letsencrypt.org/directory"
   }
   set {
-    name  = "certificatesResolvers.production.acme.caServer"
+    name  = "certificatesResolvers.${var.letsencrypt_staging_environment_name}.acme.email"
+    value = var.technical_contact_email
+  }
+  set {
+    name  = "certificatesResolvers.${var.letsencrypt_production_environment_name}.acme.caServer"
     value = "https://acme-v02.api.letsencrypt.org/directory"
   }
+  set {
+    name  = "certificatesResolvers.${var.letsencrypt_production_environment_name}.acme.email"
+    value = var.technical_contact_email
+  }
+  set {
+    name  = "persistence.enabled"
+    value = "true"
+  }
+  set {
+    name  = "persistence.storageClass"
+    value = var.acme_storage_class
+  }
+  # set {
+  #   name  = "persistence.name"
+  #   value = "acme"
+  # }
+  # set {
+  #   name  = "persistence.accessMode"
+  #   value = "ReadWriteOnce"
+  # }
+  # set {
+  #   name  = "persistence.size"
+  #   value = "1Gi"
+  # }
+  # set {
+  #   name  = "persistence.path"
+  #   value = "/acme.json"
+  # }
 }
 
 # The IngressRoute CRD comes from Traefik, which the Helm chart installs
@@ -84,7 +117,7 @@ resource "kubernetes_manifest" "drupal_ingressroute" {
         }]
       }]
       tls = {
-        certResolver = var.environment_is_production ? "production" : "staging"
+        certResolver = var.environment_is_production ? var.letsencrypt_production_environment_name : var.letsencrypt_staging_environment_name
       }
     }
   }
