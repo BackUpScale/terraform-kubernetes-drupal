@@ -32,7 +32,7 @@ resource "helm_release" "traefik" {
           acme = {
             caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
             email    = var.technical_contact_email
-            # storage  = "/acme-staging.json"   # if you want separate files, etc.
+            storage  = "/acme/acme-staging.json"
             httpChallenge = {
               entryPoint = "web"
             }
@@ -42,10 +42,10 @@ resource "helm_release" "traefik" {
           acme = {
             caServer = "https://acme-v02.api.letsencrypt.org/directory"
             email    = var.technical_contact_email
+            storage  = "/acme/acme-production.json"
             httpChallenge = {
               entryPoint = "web"
             }
-            # storage  = "/acme-prod.json"
           }
         }
       }
@@ -54,6 +54,7 @@ resource "helm_release" "traefik" {
       persistence = {
         enabled      = true
         storageClass = var.acme_storage_class
+        path         = "/acme"
       }
 
       # Any other Traefik values go here ...
