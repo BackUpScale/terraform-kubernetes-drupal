@@ -5,86 +5,63 @@ resource "helm_release" "traefik" {
   chart      = "traefik"
   version    = "35.0.0"
 
-  # set {
-  #   name  = "service.type"
-  #   value = "LoadBalancer"
-  # }
-  set {
-    name  = "ports.web.redirections.entryPoint.to"
-    value = "websecure"
-  }
-  set {
-    name  = "ports.web.redirections.entryPoint.scheme"
-    value = "https"
-  }
-  set {
-    name  = "ports.web.redirections.entryPoint.permanent"
-    value = "true"
-  }
-  # set {
-  #   name  = "ports.websecure.tls.enabled"
-  #   value = "true"
-  # }
-  # set {
-  #   name  = "certificatesResolvers.default.acme.email"
-  #   value = var.technical_contact_email
-  # }
-  # set {
-  #   name  = "certificatesResolvers.letsencrypt.email"
-  #   value = var.technical_contact_email
-  # }
-  # set {
-  #   name  = "certificatesResolvers.default.acme.storage"
-  #   value = "/acme.json"
-  # }
-  # set {
-  #   name  = "certResolvers.letsencrypt.storage"
-  #   value = "/acme.json"
-  # }
-  # set {
-  #   name  = "certificatesResolvers.default.acme.httpChallenge.entryPoint"
-  #   value = "web"
-  # }
-  set {
-    name  = "certificatesResolvers.${var.letsencrypt_staging_environment_name}.acme.caServer"
-    value = "https://acme-staging-v02.api.letsencrypt.org/directory"
-  }
-  set {
-    name  = "certificatesResolvers.${var.letsencrypt_staging_environment_name}.acme.email"
-    value = var.technical_contact_email
-  }
-  set {
-    name  = "certificatesResolvers.${var.letsencrypt_production_environment_name}.acme.caServer"
-    value = "https://acme-v02.api.letsencrypt.org/directory"
-  }
-  set {
-    name  = "certificatesResolvers.${var.letsencrypt_production_environment_name}.acme.email"
-    value = var.technical_contact_email
-  }
-  set {
-    name  = "persistence.enabled"
-    value = "true"
-  }
-  set {
-    name  = "persistence.storageClass"
-    value = var.acme_storage_class
-  }
-  # set {
-  #   name  = "persistence.name"
-  #   value = "acme"
-  # }
-  # set {
-  #   name  = "persistence.accessMode"
-  #   value = "ReadWriteOnce"
-  # }
-  # set {
-  #   name  = "persistence.size"
-  #   value = "1Gi"
-  # }
-  # set {
-  #   name  = "persistence.path"
-  #   value = "/acme.json"
-  # }
+  values = [
+    yamlencode({
+      ports = {
+        web = {
+          # This replaces ports.web.redirections.entryPoint.to, scheme, permanent
+          redirections = {
+            entryPoint = {
+              to        = "websecure"
+              scheme    = "https"
+              permanent = "true"
+            }
+          }
+        }
+      }
+      entryPoints = {
+        web = {
+          address = ":80"
+        }
+        websecure = {
+          address = ":443"
+        }
+      }
+      certificatesResolvers = {
+        "${var.letsencrypt_staging_environment_name}" = {
+          acme = {
+            caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+            email    = var.technical_contact_email
+            # storage  = "/acme-staging.json"   # if you want separate files, etc.
+            httpChallenge = {
+              entryPoint = "web"
+            }
+          }
+        }
+        "${var.letsencrypt_production_environment_name}" = {
+          acme = {
+            caServer = "https://acme-v02.api.letsencrypt.org/directory"
+            email    = var.technical_contact_email
+            httpChallenge = {
+              entryPoint = "web"
+            }
+            # storage  = "/acme-prod.json"
+          }
+        }
+      }
+
+      # Example: persist ACME JSON to a PVC
+      persistence = {
+        enabled      = true
+        storageClass = var.acme_storage_class
+      }
+
+      # Any other Traefik values go here ...
+      # globalArguments = [...]
+      # entryPoints = ...
+      # ...
+    })
+  ]
 }
 
 # The IngressRoute CRD comes from Traefik, which the Helm chart installs
