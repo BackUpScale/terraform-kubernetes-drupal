@@ -9,7 +9,6 @@ resource "helm_release" "traefik" {
     yamlencode({
       ports = {
         web = {
-          # This replaces ports.web.redirections.entryPoint.to, scheme, permanent
           redirections = {
             entryPoint = {
               to        = "websecure"
@@ -32,7 +31,7 @@ resource "helm_release" "traefik" {
           acme = {
             caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
             email    = var.technical_contact_email
-            storage  = "/acme/acme-staging.json"
+            storage  = "/data/acme.json"
             httpChallenge = {
               entryPoint = "web"
             }
@@ -42,25 +41,51 @@ resource "helm_release" "traefik" {
           acme = {
             caServer = "https://acme-v02.api.letsencrypt.org/directory"
             email    = var.technical_contact_email
-            storage  = "/acme/acme-production.json"
+            storage  = "/data/acme.json"
             httpChallenge = {
               entryPoint = "web"
             }
           }
         }
       }
-
-      # Example: persist ACME JSON to a PVC
       persistence = {
         enabled      = true
         storageClass = var.acme_storage_class
-        path         = "/acme"
+        path         = "/data"
       }
-
-      # Any other Traefik values go here ...
-      # globalArguments = [...]
-      # entryPoints = ...
-      # ...
+      # Give the application user write access to the data file.  See:
+      # https://github.com/traefik/traefik-helm-chart/issues/396#issuecomment-1873454777
+      podSecurityContext = {
+        fsGroup = 65532
+        fsGroupChangePolicy = "OnRootMismatch"
+        runAsGroup = 65532
+        runAsNonRoot = true
+        runAsUser = 65532
+      }
+      deployment = {
+        initContainers = [
+          {
+            name  = "volume-permissions"
+            image = "busybox:latest"
+            command = [
+              "sh",
+              "-c",
+              "ls -alF /; touch /data/acme.json; chmod -v 600 /data/acme.json; ls -alF /data/acme.json"
+            ]
+            securityContext = {
+              runAsNonRoot = true
+              runAsGroup = 65532
+              runAsUser = 65532
+            }
+            volumeMounts = [
+              {
+                name      = "data"
+                mountPath = "/data"
+              }
+            ]
+          }
+        ]
+      }
     })
   ]
 }
