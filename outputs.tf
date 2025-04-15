@@ -11,5 +11,4 @@ output "service_cluster_ip" {
 output "service_public_ip" {
   description = "Public IP address for the Traefik load balancer Drupal service."
   value       = data.kubernetes_service.traefik.status.0.load_balancer.0.ingress.0.ip
-  depends_on = [kubernetes_manifest.drupal_ingressroute]
 }

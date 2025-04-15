@@ -8,6 +8,7 @@ variable "host_names" {
   type = string
 }
 variable "canonical_hostname" {
+  description = "Set this from your DNS record resource to ensure it exists before HTTPS certificate verification (e.g. `cloudflare_record.drupal_public_hostname.name`)"
   type = string
 }
 variable "drupal_files_storage_class" {}

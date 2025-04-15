@@ -28,7 +28,4 @@ data "kubernetes_service" "traefik" {
     name      = helm_release.traefik.name
     namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
   }
-  # depends_on = [
-  #   helm_release.traefik
-  # ]
 }
