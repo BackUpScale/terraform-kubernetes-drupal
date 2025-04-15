@@ -5,6 +5,9 @@ resource "helm_release" "traefik" {
   chart      = "traefik"
   version    = "35.0.0"
 
+  # https://doc.traefik.io/traefik/
+  # https://artifacthub.io/packages/helm/traefik/traefik/?modal=values
+  # https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md
   values = [
     yamlencode({
       ports = {
@@ -111,6 +114,7 @@ resource "kubernetes_manifest" "drupal_ingressroute" {
     }
     spec = {
       entryPoints = ["web", "websecure"]
+      # TODO: Pass in hostname from DNS record to wait until it's up?
       routes = [{
         match = "Host(`${var.canonical_hostname}`)"
         kind  = "Rule"
