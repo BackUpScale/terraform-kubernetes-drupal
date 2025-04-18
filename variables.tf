@@ -31,6 +31,11 @@ variable "technical_contact_email" {
 variable "acme_storage_class" {
   type = string
 }
+variable "cron_key" {
+  description = "The key part of the Cron URL you can find at /admin/config/system/cron, after the https://dashboard.backupscale.com/cron/"
+  sensitive   = true
+  type        = string
+}
 
 # Optionals with defaults.
  variable "drupal_files_volume_name" {
@@ -94,6 +99,17 @@ variable "letsencrypt_production_environment_name" {
   type = string
   default = "production"
 }
+variable "cron_curl_image" {
+  description = "Container image to use for curl when running Cron jobs"
+  type        = string
+  default     = "byrnedo/alpine-curl:3.19"
+}
+variable "cron_job_interval" {
+  description = "Every number of minutes that cron will run"
+  type        = number
+  default     = 60
+}
+
 
 # Indicators.
 variable "longhorn_ready" {

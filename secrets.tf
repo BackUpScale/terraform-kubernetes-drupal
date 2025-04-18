@@ -17,6 +17,7 @@ resource "kubernetes_secret" "drupal_secrets" {
   data = {
     DATABASE_PASSWORD = var.db_password
     DRUPAL_HASH_SALT = var.hash_salt
+    cron_key = var.cron_key
   }
   type = "Opaque"
 }
