@@ -1,4 +1,5 @@
-resource "kubernetes_cron_job" "drupal_cron" {
+# Requires Kubernetes v1.21+.
+resource "kubernetes_cron_job_v1" "drupal_cron" {
   metadata {
     name      = "drupal-cron"
     namespace = var.namespace
