@@ -15,9 +15,18 @@ variable "drupal_files_storage_class" {}
 variable "namespace" {}
 variable "container_registry_credentials" {}
 variable "db_storage_class" {}
-variable "db_admin_password" {}
-variable "db_password" {}
-variable "hash_salt" {}
+variable "db_admin_password" {
+  sensitive = true
+  type = string
+}
+variable "db_password" {
+  sensitive = true
+  type = string
+}
+variable "hash_salt" {
+  sensitive = true
+  type = string
+}
 variable "drupal_container_image_url" {
   description = "Name and tag for the built Drupal image"
   type        = string
