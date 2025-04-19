@@ -1,10 +1,9 @@
 resource "helm_release" "mariadb" {
   name       = "mariadb"
   namespace  = kubernetes_namespace.drupal_dashboard.metadata[0].name
-  # https://artifacthub.io/packages/helm/bitnami/mariadb
   repository = "oci://registry-1.docker.io/bitnamicharts"
   chart      = "mariadb"
-  version    = "20.4.2"
+  version    = var.mariadb_helm_chart_version
 
   set {
     name  = "auth.rootPassword"
@@ -40,7 +39,7 @@ resource "helm_release" "mariadb" {
   }
   set {
     name  = "secondary.replicaCount"
-    value = "2"
+    value = var.number_of_secondary_db_replicas
   }
   set {
     name  = "metrics.enabled"

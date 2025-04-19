@@ -1,9 +1,12 @@
+locals {
+  tls_certificate_data_path = "${var.tls_certificate_data_directory}/${var.tls_certificate_data_filename}"
+}
 resource "helm_release" "traefik" {
   name       = "traefik"
   namespace  = kubernetes_namespace.drupal_dashboard.metadata[0].name
   repository = "https://traefik.github.io/charts"
   chart      = "traefik"
-  version    = "35.0.0"
+  version    = var.traefik_helm_chart_version
 
   # https://doc.traefik.io/traefik/
   # https://artifacthub.io/packages/helm/traefik/traefik/?modal=values
@@ -23,28 +26,28 @@ resource "helm_release" "traefik" {
       }
       entryPoints = {
         web = {
-          address = ":80"
+          address = ":${var.http_port}"
         }
         websecure = {
-          address = ":443"
+          address = ":${var.https_port}"
         }
       }
       certificatesResolvers = {
-        "${var.letsencrypt_staging_environment_name}" = {
+        (var.letsencrypt_staging_environment_name) = {
           acme = {
             caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
             email    = var.technical_contact_email
-            storage  = "/data/acme.json"
+            storage  = local.tls_certificate_data_path
             httpChallenge = {
               entryPoint = "web"
             }
           }
         }
-        "${var.letsencrypt_production_environment_name}" = {
+        (var.letsencrypt_production_environment_name) = {
           acme = {
             caServer = "https://acme-v02.api.letsencrypt.org/directory"
             email    = var.technical_contact_email
-            storage  = "/data/acme.json"
+            storage  = local.tls_certificate_data_path
             httpChallenge = {
               entryPoint = "web"
             }
@@ -54,16 +57,16 @@ resource "helm_release" "traefik" {
       persistence = {
         enabled      = true
         storageClass = var.acme_storage_class
-        path         = "/data"
+        path         = var.tls_certificate_data_directory
       }
       # Give the application user write access to the data file.  See:
       # https://github.com/traefik/traefik-helm-chart/issues/396#issuecomment-1873454777
       podSecurityContext = {
-        fsGroup = 65532
+        fsGroup = var.traefik_user_id
         fsGroupChangePolicy = "OnRootMismatch"
-        runAsGroup = 65532
+        runAsGroup = var.traefik_user_id
         runAsNonRoot = true
-        runAsUser = 65532
+        runAsUser = var.traefik_user_id
       }
       deployment = {
         initContainers = [
@@ -73,17 +76,17 @@ resource "helm_release" "traefik" {
             command = [
               "sh",
               "-c",
-              "ls -alF /; touch /data/acme.json; chmod -v 600 /data/acme.json; ls -alF /data/acme.json"
+              "ls -alF /; touch ${local.tls_certificate_data_path}; chmod -v 600 ${local.tls_certificate_data_path}; ls -alF ${local.tls_certificate_data_path}"
             ]
             securityContext = {
               runAsNonRoot = true
-              runAsGroup = 65532
-              runAsUser = 65532
+              runAsGroup = var.traefik_user_id
+              runAsUser = var.traefik_user_id
             }
             volumeMounts = [
               {
                 name      = "data"
-                mountPath = "/data"
+                mountPath = var.tls_certificate_data_directory
               }
             ]
           }

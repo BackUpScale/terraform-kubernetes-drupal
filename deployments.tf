@@ -39,12 +39,12 @@ resource "kubernetes_deployment" "drupal" {
           }
           resources {
             limits = {
-              cpu    = "500m"
-              memory = "2Gi"
+              cpu    = var.drupal_cpu_limit
+              memory = var.drupal_memory_limit
             }
             requests = {
-              cpu    = "250m"
-              memory = "1Gi"
+              cpu    = var.drupal_cpu_request
+              memory = var.drupal_memmory_request
             }
           }
 
