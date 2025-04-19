@@ -8,7 +8,7 @@ resource "kubernetes_config_map" "app_variables" {
     DATABASE_USER = var.db_username
     DATABASE_HOST = data.kubernetes_service.mariadb_primary.spec[0].cluster_ip
     DATABASE_PORT = var.db_port
-    DRUPAL_TRUSTED_HOST_PATTERNS = var.host_names
+    DRUPAL_TRUSTED_HOST_PATTERNS = "${var.public_hostname}, ${var.private_hostname}"
     // To enable, set this anything that evaluates to TRUE in PHP.
     # DRUPAL_REVERSE_PROXY = "true"
     DRUPAL_REVERSE_PROXY_ADDRESSES = join(",", var.reverse_proxy_address_ranges)

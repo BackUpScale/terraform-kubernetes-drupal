@@ -116,7 +116,7 @@ resource "kubernetes_manifest" "drupal_ingressroute" {
       entryPoints = ["web", "websecure"]
       # TODO: Pass in hostname from DNS record to wait until it's up?
       routes = [{
-        match = "Host(`${var.canonical_hostname}`)"
+        match = "Host(`${var.public_hostname}`)"
         kind  = "Rule"
         services = [{
           name = var.kubernetes_drupal_service_name

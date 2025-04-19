@@ -4,10 +4,10 @@ variable "environment_is_production" {
   default = false
   type = bool
 }
-variable "host_names" {
+variable "private_hostname" {
   type = string
 }
-variable "canonical_hostname" {
+variable "public_hostname" {
   description = "Set this from your DNS record resource to ensure it exists before HTTPS certificate verification (e.g. `cloudflare_record.drupal_public_hostname.name`)"
   type = string
 }

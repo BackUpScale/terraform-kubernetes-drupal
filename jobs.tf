@@ -7,7 +7,7 @@ resource "kubernetes_cron_job_v1" "drupal_cron" {
   spec {
     schedule = "*/${var.cron_job_interval} * * * *"
     concurrency_policy = "Forbid"
-    successful_jobs_history_limit = 3
+    successful_jobs_history_limit = 6
     failed_jobs_history_limit = 1
     job_template {
       metadata {}
@@ -29,7 +29,7 @@ resource "kubernetes_cron_job_v1" "drupal_cron" {
               }
               args = [
                 "-s",
-                "https://${var.canonical_hostname}/cron/$(CRON_KEY)",
+                "http://${var.private_hostname}/cron/$(CRON_KEY)",
               ]
             }
             restart_policy = "OnFailure"
