@@ -2,7 +2,7 @@
 resource "kubernetes_cron_job_v1" "drupal_cron" {
   metadata {
     name      = "drupal-cron"
-    namespace = var.namespace
+    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
   }
   spec {
     schedule = "*/${var.cron_job_interval} * * * *"
