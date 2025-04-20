@@ -118,7 +118,6 @@ variable "drupal_memory_limit" {
   type    = string
   default = "2Gi"
 }
-
 variable "kubernetes_drupal_service_name" {
   type    = string
   default = "drupal-service"
@@ -166,6 +165,11 @@ variable "tls_certificate_data_directory" {
 variable "tls_certificate_data_filename" {
   type    = string
   default = "acme.json"
+}
+variable "vpn_range" {
+  description = "VPN CIDR range for admin access to site"
+  type    = string
+  default = "100.64.0.0/10"
 }
 
 # Indicators.

@@ -117,17 +117,51 @@ resource "kubernetes_manifest" "drupal_ingressroute" {
     }
     spec = {
       entryPoints = ["web", "websecure"]
-      # TODO: Pass in hostname from DNS record to wait until it's up?
-      routes = [{
-        match = "Host(`${var.public_hostname}`)"
-        kind  = "Rule"
-        services = [{
-          name = var.kubernetes_drupal_service_name
-          port = var.http_port
-        }]
-      }]
+      routes = [
+        {
+          match = "Host(`${var.public_hostname}`) && (PathPrefix(`/admin`) || Path(`/core/install.php`) || Path(`/update.php`) || Path(`/core/authorize.php`) || Path(`/core/rebuild.php`))"
+          kind  = "Rule"
+          middlewares = [
+            {
+              name = "admin-ip-allow-list"
+            }
+          ]
+          services = [{
+            name = var.kubernetes_drupal_service_name
+            port = var.http_port
+          }]
+        },
+        {
+          match = "Host(`${var.public_hostname}`)"
+          kind  = "Rule"
+          services = [
+            {
+              name = var.kubernetes_drupal_service_name
+              port = var.http_port
+            }
+          ]
+        }
+      ]
       tls = {
         certResolver = var.environment_is_production ? var.letsencrypt_production_environment_name : var.letsencrypt_staging_environment_name
+      }
+    }
+  }
+}
+
+resource "kubernetes_manifest" "admin_ip_allowlist" {
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "Middleware"
+    metadata = {
+      name      = "admin-ip-allow-list"
+      namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+    }
+    spec = {
+      ipAllowList = {
+        sourceRange = [
+          var.vpn_range,
+        ]
       }
     }
   }
