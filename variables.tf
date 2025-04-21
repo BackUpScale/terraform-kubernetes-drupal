@@ -31,7 +31,7 @@ variable "drupal_container_image_url" {
   description = "Name and tag for the built Drupal image"
   type        = string
 }
-variable "reverse_proxy_address_ranges" {
+variable "trusted_ip_address_ranges" {
   type    = list(string)
 }
 variable "technical_contact_email" {
@@ -43,6 +43,15 @@ variable "acme_storage_class" {
 variable "cron_key" {
   description = "The key part of the Cron URL you can find at /admin/config/system/cron, after the https://dashboard.backupscale.com/cron/"
   sensitive   = true
+  type        = string
+}
+variable "firewall_id_annotation_key" {
+  description = "Your cloud service provider's annotation key for setting the firewall ID"
+  default = "kubernetes.civo.com/firewall-id"
+  type = string
+}
+variable "firewall_id_annotation_value" {
+  description = "Your preferred firewall's UUID to protect the site"
   type        = string
 }
 
@@ -170,6 +179,16 @@ variable "vpn_range" {
   description = "VPN CIDR range for admin access to site"
   type    = string
   default = "100.64.0.0/10"
+}
+variable "client_ip_preservation_annotation_key" {
+  description = "Cloud-provider-specific annotation key for preserving client IP addresses"
+  type    = string
+  default = "kubernetes.civo.com/loadbalancer-enable-proxy-protocol"
+}
+variable "client_ip_preservation_annotation_value" {
+  description = "Cloud-provider-specific annotation value for preserving client IP addresses"
+  type    = string
+  default = "send-proxy-v2"
 }
 
 # Indicators.

@@ -27,9 +27,24 @@ resource "helm_release" "traefik" {
       entryPoints = {
         web = {
           address = ":${var.http_port}"
+          proxyProtocol = {
+            # trustedIPs = var.trusted_ip_address_ranges
+          }
         }
         websecure = {
           address = ":${var.https_port}"
+          proxyProtocol = {
+            # trustedIPs = var.trusted_ip_address_ranges
+          }
+        }
+      }
+      service = {
+        annotations = {
+          # (var.client_ip_preservation_annotation_key) = var.client_ip_preservation_annotation_value
+          (var.firewall_id_annotation_key) = var.firewall_id_annotation_value
+        }
+        spec = {
+          # externalTrafficPolicy = "Local"
         }
       }
       certificatesResolvers = {

@@ -9,6 +9,6 @@ resource "kubernetes_config_map" "app_variables" {
     DATABASE_HOST = data.kubernetes_service.mariadb_primary.spec[0].cluster_ip
     DATABASE_PORT = var.db_port
     DRUPAL_TRUSTED_HOST_PATTERNS = "${var.public_hostname}, ${var.private_hostname}"
-    DRUPAL_REVERSE_PROXY_ADDRESSES = join(",", var.reverse_proxy_address_ranges)
+    DRUPAL_REVERSE_PROXY_ADDRESSES = join(",", var.trusted_ip_address_ranges)
   }
 }
