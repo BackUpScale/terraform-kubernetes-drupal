@@ -13,38 +13,33 @@ resource "helm_release" "traefik" {
   # https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md
   values = [
     yamlencode({
-      ports = {
-        web = {
-          redirections = {
-            entryPoint = {
-              to        = "websecure"
-              scheme    = "https"
-              permanent = "true"
-            }
-          }
-        }
-      }
-      entryPoints = {
-        web = {
-          address = ":${var.http_port}"
-          proxyProtocol = {
-            # trustedIPs = var.trusted_ip_address_ranges
-          }
-        }
-        websecure = {
-          address = ":${var.https_port}"
-          proxyProtocol = {
-            # trustedIPs = var.trusted_ip_address_ranges
-          }
-        }
-      }
+      # ports = {
+      #   web = {
+      #     redirections = {
+      #       entryPoint = {
+      #         to        = "websecure"
+      #         scheme    = "https"
+      #         permanent = "true"
+      #       }
+      #     }
+      #   }
+      # }
+      additionalArguments = [
+        # "--log.level=DEBUG",
+        "--entryPoints.web.address=:${var.http_port}",
+        # "--entryPoints.web.proxyProtocol.trustedIPs=${join(",", ["0.0.0.0/0"])}",
+        "--entryPoints.web.proxyProtocol.trustedIPs=${join(",", var.trusted_ip_address_ranges)}",
+        "--entryPoints.websecure.address=:${var.https_port}",
+        # "--entryPoints.websecure.proxyProtocol.trustedIPs=${join(",", ["0.0.0.0/0"])}"
+        "--entryPoints.websecure.proxyProtocol.trustedIPs=${join(",", var.trusted_ip_address_ranges)}"
+      ]
       service = {
         annotations = {
-          # (var.client_ip_preservation_annotation_key) = var.client_ip_preservation_annotation_value
+          (var.client_ip_preservation_annotation_key) = var.client_ip_preservation_annotation_value
           (var.firewall_id_annotation_key) = var.firewall_id_annotation_value
         }
         spec = {
-          # externalTrafficPolicy = "Local"
+          externalTrafficPolicy = "Local"
         }
       }
       certificatesResolvers = {
