@@ -131,7 +131,7 @@ resource "kubernetes_manifest" "drupal_ingressroute" {
     apiVersion = "traefik.io/v1alpha1"
     kind       = "IngressRoute"
     metadata = {
-      name      = "drupal"
+      name      = "drupal-ingressroute"
       namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
     }
     spec = {
