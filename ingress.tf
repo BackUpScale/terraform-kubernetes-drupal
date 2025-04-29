@@ -13,6 +13,7 @@ resource "helm_release" "traefik" {
   # https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md
   values = [
     yamlencode({
+      # Re-enable HTTP -> HTTPS redirections after PROXY protocol works with ACME.
       # ports = {
       #   web = {
       #     redirections = {
@@ -24,13 +25,21 @@ resource "helm_release" "traefik" {
       #     }
       #   }
       # }
+      # For debugging, but doesn't work.
+      # logs = {
+      #   access = {
+      #     enabled = true
+      #     format = "json"
+      #   }
+      # }
       additionalArguments = [
         # "--log.level=DEBUG",
+        # For debugging, but doesn't work.
+        # "--accesslog=true",
+        # "--accesslog.format=json",
         "--entryPoints.web.address=:${var.http_port}",
-        # "--entryPoints.web.proxyProtocol.trustedIPs=${join(",", ["0.0.0.0/0"])}",
         "--entryPoints.web.proxyProtocol.trustedIPs=${join(",", var.trusted_ip_address_ranges)}",
         "--entryPoints.websecure.address=:${var.https_port}",
-        # "--entryPoints.websecure.proxyProtocol.trustedIPs=${join(",", ["0.0.0.0/0"])}"
         "--entryPoints.websecure.proxyProtocol.trustedIPs=${join(",", var.trusted_ip_address_ranges)}"
       ]
       service = {
