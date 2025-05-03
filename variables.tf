@@ -37,9 +37,6 @@ variable "trusted_ip_address_ranges" {
 variable "technical_contact_email" {
   type = string
 }
-variable "acme_storage_class" {
-  type = string
-}
 variable "cron_key" {
   description = "The key part of the Cron URL you can find at /admin/config/system/cron, after the https://dashboard.backupscale.com/cron/"
   sensitive   = true
