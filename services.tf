@@ -23,9 +23,9 @@ data "kubernetes_service" "mariadb_primary" {
   depends_on = [helm_release.mariadb]
 }
 
-data "kubernetes_service" "traefik" {
+data "kubernetes_service" "nginx_ingress" {
   metadata {
-    name      = helm_release.traefik.name
+    name      = helm_release.nginx_ingress.name
     namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
   }
 }

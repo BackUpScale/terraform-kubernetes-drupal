@@ -157,23 +157,15 @@ variable "cron_job_interval" {
   type        = number
   default     = 60
 }
-variable "traefik_helm_chart_version" {
-  description = "See https://artifacthub.io/packages/helm/traefik/traefik/"
+variable "nginx_ingress_helm_chart_version" {
+  description = "See https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx"
   type = string
-  default = "35.0.0"
+  default = "4.12.2"
 }
-variable "traefik_user_id" {
-  description = "The user ID of the application user in the container"
-  type    = number
-  default = 65532
-}
-variable "tls_certificate_data_directory" {
-  type    = string
-  default = "/data"
-}
-variable "tls_certificate_data_filename" {
-  type    = string
-  default = "acme.json"
+variable "cert_manager_helm_chart_version" {
+  description = "See https://artifacthub.io/packages/helm/cert-manager/cert-manager"
+  type = string
+  default = "1.17.2"
 }
 variable "vpn_range" {
   description = "VPN CIDR range for admin access to site"

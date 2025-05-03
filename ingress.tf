@@ -1,186 +1,157 @@
-locals {
-  tls_certificate_data_path = "${var.tls_certificate_data_directory}/${var.tls_certificate_data_filename}"
-}
-resource "helm_release" "traefik" {
-  name       = "traefik"
+resource "helm_release" "nginx_ingress" {
+  name       = "nginx-ingress"
   namespace  = kubernetes_namespace.drupal_dashboard.metadata[0].name
-  repository = "https://traefik.github.io/charts"
-  chart      = "traefik"
-  version    = var.traefik_helm_chart_version
+  repository = "https://kubernetes.github.io/ingress-nginx"
+  chart      = "ingress-nginx"
+  version    = var.nginx_ingress_helm_chart_version
 
-  # https://doc.traefik.io/traefik/
-  # https://artifacthub.io/packages/helm/traefik/traefik/?modal=values
-  # https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md
-  values = [
-    yamlencode({
-      # Re-enable HTTP -> HTTPS redirections after PROXY protocol works with ACME.
-      # ports = {
-      #   web = {
-      #     redirections = {
-      #       entryPoint = {
-      #         to        = "websecure"
-      #         scheme    = "https"
-      #         permanent = "true"
-      #       }
-      #     }
-      #   }
-      # }
-      # For debugging, but doesn't work.
-      # logs = {
-      #   access = {
-      #     enabled = true
-      #     format = "json"
-      #   }
-      # }
-      additionalArguments = [
-        # "--log.level=DEBUG",
-        # For debugging, but doesn't work.
-        # "--accesslog=true",
-        # "--accesslog.format=json",
-        "--entryPoints.web.address=:${var.http_port}",
-        "--entryPoints.web.proxyProtocol.trustedIPs=${join(",", var.trusted_ip_address_ranges)}",
-        "--entryPoints.websecure.address=:${var.https_port}",
-        "--entryPoints.websecure.proxyProtocol.trustedIPs=${join(",", var.trusted_ip_address_ranges)}"
-      ]
+  values = [yamlencode({
+    controller = {
+      replicaCount = 2
       service = {
+        type = "LoadBalancer"
         annotations = {
           (var.client_ip_preservation_annotation_key) = var.client_ip_preservation_annotation_value
-          (var.firewall_id_annotation_key) = var.firewall_id_annotation_value
+          (var.firewall_id_annotation_key)            = var.firewall_id_annotation_value
         }
-        spec = {
-          externalTrafficPolicy = "Local"
-        }
-      }
-      certificatesResolvers = {
-        (var.letsencrypt_staging_environment_name) = {
-          acme = {
-            caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
-            email    = var.technical_contact_email
-            storage  = local.tls_certificate_data_path
-            httpChallenge = {
-              entryPoint = "web"
-            }
-          }
-        }
-        (var.letsencrypt_production_environment_name) = {
-          acme = {
-            caServer = "https://acme-v02.api.letsencrypt.org/directory"
-            email    = var.technical_contact_email
-            storage  = local.tls_certificate_data_path
-            httpChallenge = {
-              entryPoint = "web"
-            }
-          }
+        externalTrafficPolicy = "Local"
+        ports = {
+          http  = var.http_port
+          https = var.https_port
         }
       }
-      persistence = {
-        enabled      = true
-        storageClass = var.acme_storage_class
-        path         = var.tls_certificate_data_directory
+      config = {
+        use-forwarded-headers = "true"
       }
-      # Give the application user write access to the data file.  See:
-      # https://github.com/traefik/traefik-helm-chart/issues/396#issuecomment-1873454777
-      podSecurityContext = {
-        fsGroup = var.traefik_user_id
-        fsGroupChangePolicy = "OnRootMismatch"
-        runAsGroup = var.traefik_user_id
-        runAsNonRoot = true
-        runAsUser = var.traefik_user_id
-      }
-      deployment = {
-        initContainers = [
-          {
-            name  = "volume-permissions"
-            image = "busybox:latest"
-            command = [
-              "sh",
-              "-c",
-              "ls -alF /; touch ${local.tls_certificate_data_path}; chmod -v 600 ${local.tls_certificate_data_path}; ls -alF ${local.tls_certificate_data_path}"
-            ]
-            securityContext = {
-              runAsNonRoot = true
-              runAsGroup = var.traefik_user_id
-              runAsUser = var.traefik_user_id
-            }
-            volumeMounts = [
-              {
-                name      = "data"
-                mountPath = var.tls_certificate_data_directory
-              }
-            ]
-          }
-        ]
-      }
-    })
-  ]
-}
-
-# The IngressRoute CRD comes from Traefik, which the Helm chart installs
-# This resource will expose your Drupal service at the route match.
-# @see https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/
-resource "kubernetes_manifest" "drupal_ingressroute" {
-  # TODO: Remove this warning after a fix gets released.
-  # Even with this explicit dependency, we still have problems:
-  # `cannot create REST client: no client config` &
-  # `API did not recognize GroupVersionKind from manifest (CRD may not be installed)`
-  # So this resource must be commented out until the first `apply` completes,
-  # and then run again afterwards.  This is because unknown values block
-  # successful planning: https://github.com/hashicorp/terraform/issues/30937
-  depends_on = [helm_release.traefik]
-  manifest = {
-    apiVersion = "traefik.io/v1alpha1"
-    kind       = "IngressRoute"
-    metadata = {
-      name      = "drupal-ingressroute"
-      namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
     }
-    spec = {
-      entryPoints = ["web", "websecure"]
-      routes = [
-        {
-          match = "Host(`${var.public_hostname}`) && (PathPrefix(`/admin`) || Path(`/core/install.php`) || Path(`/update.php`) || Path(`/core/authorize.php`) || Path(`/core/rebuild.php`))"
-          kind  = "Rule"
-          middlewares = [
-            {
-              name = "admin-ip-allow-list"
-            }
-          ]
-          services = [{
-            name = var.kubernetes_drupal_service_name
-            port = var.http_port
-          }]
-        },
-        {
-          match = "Host(`${var.public_hostname}`)"
-          kind  = "Rule"
-          services = [
-            {
+  })]
+}
+resource "helm_release" "cert_manager" {
+  name             = "cert-manager"
+  namespace         = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  repository        = "https://charts.jetstack.io"
+  chart             = "cert-manager"
+  version           = var.cert_manager_helm_chart_version
+  set {
+    name  = "installCRDs"
+    value = "true"
+  }
+}
+resource "kubectl_manifest" "le_staging" {
+  depends_on = [helm_release.cert_manager]
+  yaml_body = <<YAML
+    apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: ${var.letsencrypt_staging_environment_name}
+    spec:
+      acme:
+        email: ${var.technical_contact_email}
+        server: https://acme-staging-v02.api.letsencrypt.org/directory
+        privateKeySecretRef:
+          name: acme-staging-key
+        solvers:
+          - http01:
+              ingress:
+                class: nginx
+YAML
+}
+resource "kubectl_manifest" "le_production" {
+  depends_on = [helm_release.cert_manager]
+  yaml_body = <<YAML
+    apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: ${var.letsencrypt_production_environment_name}
+    spec:
+      acme:
+        email: ${var.technical_contact_email}
+        server: https://acme-v02.api.letsencrypt.org/directory
+        privateKeySecretRef:
+          name: acme-prod-key
+        solvers:
+          - http01:
+              ingress:
+                class: nginx
+YAML
+}
+resource "kubernetes_ingress_v1" "drupal_public" {
+  metadata {
+    name      = "drupal-public"
+    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+    annotations = {
+      "nginx.ingress.kubernetes.io/force-ssl-redirect" = "true"
+      "cert-manager.io/cluster-issuer" = var.environment_is_production ? var.letsencrypt_production_environment_name : var.letsencrypt_staging_environment_name
+    }
+  }
+  spec {
+    ingress_class_name = "nginx"
+    tls {
+      hosts      = [var.public_hostname]
+      secret_name = "drupal-tls"
+    }
+    rule {
+      host = var.public_hostname
+      http {
+        path {
+          path      = "/"
+          path_type = "Prefix"
+          backend {
+            service {
               name = var.kubernetes_drupal_service_name
-              port = var.http_port
+              port {
+                number = var.http_port
+              }
             }
-          ]
+          }
         }
-      ]
-      tls = {
-        certResolver = var.environment_is_production ? var.letsencrypt_production_environment_name : var.letsencrypt_staging_environment_name
       }
     }
   }
 }
-
-resource "kubernetes_manifest" "admin_ip_allowlist" {
-  manifest = {
-    apiVersion = "traefik.io/v1alpha1"
-    kind       = "Middleware"
-    metadata = {
-      name      = "admin-ip-allow-list"
-      namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+resource "kubernetes_ingress_v1" "drupal_admin" {
+  metadata {
+    name      = "drupal-admin"
+    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+    annotations = {
+      "nginx.ingress.kubernetes.io/force-ssl-redirect"     = "true"
+      "nginx.ingress.kubernetes.io/whitelist-source-range" = var.vpn_range
+      "cert-manager.io/cluster-issuer" = var.environment_is_production ? var.letsencrypt_production_environment_name : var.letsencrypt_staging_environment_name
     }
-    spec = {
-      ipAllowList = {
-        sourceRange = [
-          var.vpn_range,
-        ]
+  }
+  spec {
+    ingress_class_name = "nginx"
+    tls {
+      hosts       = [var.public_hostname]
+      secret_name = "drupal-admin-tls"
+    }
+    rule {
+      host = var.public_hostname
+      http {
+        path {
+          path      = "/admin"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = var.kubernetes_drupal_service_name
+              port {
+                number = var.http_port
+              }
+            }
+          }
+        }
+        path {
+          path      = "/core/(install|update|authorize|rebuild).php"
+          path_type = "ImplementationSpecific"
+          backend {
+            service {
+              name = var.kubernetes_drupal_service_name
+              port {
+                number = var.http_port
+              }
+            }
+          }
+        }
       }
     }
   }
