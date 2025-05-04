@@ -21,6 +21,7 @@ resource "helm_release" "nginx_ingress" {
           https = var.https_port
         }
       }
+      # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
       config = {
         use-forwarded-headers = "true"
         use-proxy-protocol = "true"
