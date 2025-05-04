@@ -49,4 +49,12 @@ resource "helm_release" "mariadb" {
     name  = "metrics.serviceMonitor.enabled"
     value = "true"
   }
+  set {
+    name  = "primary.extraFlags"
+    value = "--transaction-isolation=READ-COMMITTED"
+  }
+  set {
+    name  = "secondary.extraFlags"
+    value = "--transaction-isolation=READ-COMMITTED"
+  }
 }
