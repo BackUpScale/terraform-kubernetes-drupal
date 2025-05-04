@@ -118,7 +118,8 @@ resource "kubernetes_ingress_v1" "drupal_admin" {
     name      = "drupal-admin"
     namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
     annotations = {
-      "nginx.ingress.kubernetes.io/force-ssl-redirect"     = "true"
+      "nginx.ingress.kubernetes.io/use-regex": "true"
+      "nginx.ingress.kubernetes.io/force-ssl-redirect" = "true"
       "nginx.ingress.kubernetes.io/whitelist-source-range" = var.vpn_range
       "cert-manager.io/cluster-issuer" = var.environment_is_production ? var.letsencrypt_production_environment_name : var.letsencrypt_staging_environment_name
     }
@@ -145,7 +146,7 @@ resource "kubernetes_ingress_v1" "drupal_admin" {
           }
         }
         path {
-          path      = "/core/(install|update|authorize|rebuild).php"
+          path      = "/(core/(install|authorize|rebuild)|update).php"
           path_type = "ImplementationSpecific"
           backend {
             service {
