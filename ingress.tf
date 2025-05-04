@@ -13,6 +13,7 @@ resource "helm_release" "nginx_ingress" {
         annotations = {
           (var.client_ip_preservation_annotation_key) = var.client_ip_preservation_annotation_value
           (var.firewall_id_annotation_key)            = var.firewall_id_annotation_value
+          (var.loadbalancer_algorithm_annotation_key) = var.loadbalancer_algorithm_annotation_value
         }
         externalTrafficPolicy = "Local"
         ports = {
@@ -22,6 +23,8 @@ resource "helm_release" "nginx_ingress" {
       }
       config = {
         use-forwarded-headers = "true"
+        use-proxy-protocol = "true"
+        proxy-real-ip-cidr = join(",", var.trusted_ip_address_ranges)
       }
     }
   })]

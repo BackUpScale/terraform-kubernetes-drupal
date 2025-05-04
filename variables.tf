@@ -48,7 +48,17 @@ variable "firewall_id_annotation_key" {
   type = string
 }
 variable "firewall_id_annotation_value" {
-  description = "Your preferred firewall's UUID to protect the site"
+  description = "Your preferred firewall's UUID to protect the site; required to prevent a new permissive firewall from being spun up"
+  type        = string
+}
+variable "loadbalancer_algorithm_annotation_key" {
+  description = "Your cloud service provider's annotation key for setting the load balancer algorithm"
+  default     = "kubernetes.civo.com/loadbalancer-algorithm"
+  type        = string
+}
+variable "loadbalancer_algorithm_annotation_value" {
+  description = "The load balancer algorithm you'd like to use (e.g. round robin, least connections)"
+  default     = "least_connections"
   type        = string
 }
 

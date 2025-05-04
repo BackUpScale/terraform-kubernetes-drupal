@@ -25,7 +25,7 @@ data "kubernetes_service" "mariadb_primary" {
 
 data "kubernetes_service" "nginx_ingress" {
   metadata {
-    name      = helm_release.nginx_ingress.name
-    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+    name      = "${helm_release.nginx_ingress.name}-ingress-nginx-controller"
+    namespace = helm_release.nginx_ingress.namespace
   }
 }
