@@ -120,6 +120,11 @@ resource "kubernetes_deployment" "drupal" {
               }
             }
           }
+          env_from {
+            secret_ref {
+              name = kubernetes_secret.drupal_config_overrides.metadata[0].name
+            }
+          }
         }
 
         volume {

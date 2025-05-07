@@ -21,3 +21,20 @@ resource "kubernetes_secret" "drupal_secrets" {
   }
   type = "Opaque"
 }
+
+locals {
+  # Replace ':' with '__' so keys are legal env‑var names.
+  env_pairs = {
+    for k, v in var.drupal_config_overrides :
+    replace(k, ":", "__") => v
+  }
+}
+resource "kubernetes_secret" "drupal_config_overrides" {
+  metadata {
+    name      = "drupal-config-overrides"
+    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  }
+  # Provider → stringData → data
+  data = local.env_pairs
+  type = "Opaque"
+}

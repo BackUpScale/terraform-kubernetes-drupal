@@ -189,6 +189,12 @@ variable "client_ip_preservation_annotation_value" {
   type    = string
   default = "send-proxy-v2"
 }
+variable "drupal_config_overrides" {
+  description = "Drupal config & settings overrides"
+  type        = map(string)
+  sensitive   = true
+  default     = {}
+}
 
 # Indicators.
 variable "longhorn_ready" {
