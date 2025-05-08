@@ -22,11 +22,17 @@ resource "kubernetes_secret" "drupal_secrets" {
   type = "Opaque"
 }
 
+# Sanitize configuration overrides so we can pass them via the environment.
 locals {
-  # Replace ':' with '__' so keys are legal env‑var names.
-  env_pairs = {
-    for k, v in var.drupal_config_overrides :
-    replace(k, ":", "__") => v
+  # 1) `:`  → `__`
+  uncoloned_environment_variable_definitions = {
+    for key, value in var.drupal_config_overrides :
+    replace(key, ":", "__") => value
+  }
+  # 2) `.`  → `__DOT__`
+  sanitized_environment_variable_definitions = {
+    for key, value in local.uncoloned_environment_variable_definitions :
+    replace(key, ".", "__DOT__") => value
   }
 }
 resource "kubernetes_secret" "drupal_config_overrides" {
@@ -34,7 +40,6 @@ resource "kubernetes_secret" "drupal_config_overrides" {
     name      = "drupal-config-overrides"
     namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
   }
-  # Provider → stringData → data
-  data = local.env_pairs
+  data = local.sanitized_environment_variable_definitions
   type = "Opaque"
 }
