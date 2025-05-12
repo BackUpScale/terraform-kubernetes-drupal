@@ -24,13 +24,12 @@ resource "helm_release" "mariadb" {
         extraFlags = "--transaction-isolation=READ-COMMITTED"
         resources = {
           requests = {
-            cpu    = "1"
-            memory = "1Gi"
+            cpu    = var.mariadb_primary_cpu_request
+            memory = var.mariadb_primary_memory_request
           }
           limits = {
-            # Generous cap; remove to run without limits
-            cpu    = "2"
-            memory = "2Gi"
+            cpu    = var.mariadb_primary_cpu_limit
+            memory = var.mariadb_primary_memory_limit
           }
         }
       }
@@ -42,12 +41,12 @@ resource "helm_release" "mariadb" {
         extraFlags = "--transaction-isolation=READ-COMMITTED"
         resources = {
           requests = {
-            cpu    = "500m"
-            memory = "768Mi"
+            cpu    = var.mariadb_secondary_cpu_request
+            memory = var.mariadb_secondary_memory_request
           }
           limits = {
-            cpu    = "1"
-            memory = "1.5Gi"
+            cpu    = var.mariadb_secondary_cpu_limit
+            memory = var.mariadb_secondary_memory_limit
           }
         }
       }
@@ -58,12 +57,12 @@ resource "helm_release" "mariadb" {
         }
         resources = {
           requests = {
-            cpu    = "50m"
-            memory = "128Mi"
+            cpu    = var.mariadb_metrics_cpu_request
+            memory = var.mariadb_metrics_memory_request
           }
           limits = {
-            cpu    = "200m"
-            memory = "256Mi"
+            cpu    = var.mariadb_metrics_cpu_limit
+            memory = var.mariadb_metrics_memory_limit
           }
         }
       }

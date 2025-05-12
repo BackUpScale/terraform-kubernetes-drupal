@@ -88,6 +88,54 @@ variable "mariadb_helm_chart_version" {
   type    = string
   default = "20.4.2"
 }
+variable "mariadb_primary_cpu_request" {
+  type = string
+  default = "1"
+}
+variable "mariadb_primary_memory_request" {
+  type = string
+  default = "1Gi"
+}
+variable "mariadb_primary_cpu_limit" {
+  type = string
+  default = "2"
+}
+variable "mariadb_primary_memory_limit" {
+  type = string
+  default = "2Gi"
+}
+variable "mariadb_secondary_cpu_request" {
+  type = string
+  default = "500m"
+}
+variable "mariadb_secondary_memory_request" {
+  type = string
+  default = "768Mi"
+}
+variable "mariadb_secondary_cpu_limit" {
+  type = string
+  default = "1"
+}
+variable "mariadb_secondary_memory_limit" {
+  type = string
+  default = "1.5Gi"
+}
+variable "mariadb_metrics_cpu_request" {
+  type = string
+  default = "50m"
+}
+variable "mariadb_metrics_memory_request" {
+  type = string
+  default = "128Mi"
+}
+variable "mariadb_metrics_cpu_limit" {
+  type = string
+  default = "200m"
+}
+variable "mariadb_metrics_memory_limit" {
+  type = string
+  default = "256Mi"
+}
 variable "drupal_db_storage_size" {
   type    = string
   default = "40Gi"
