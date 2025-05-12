@@ -5,56 +5,68 @@ resource "helm_release" "mariadb" {
   chart      = "mariadb"
   version    = var.mariadb_helm_chart_version
 
-  set {
-    name  = "auth.rootPassword"
-    value = var.db_admin_password
-  }
-  set {
-    name  = "auth.database"
-    value = var.db_schema
-  }
-  set {
-    name  = "auth.username"
-    value = var.db_username
-  }
-  set {
-    name  = "auth.password"
-    value = var.db_password
-  }
-  set {
-    name = "global.defaultStorageClass"
-    value = var.db_storage_class
-  }
-  set {
-    name  = "architecture"
-    value = "replication"
-  }
-  set {
-    name  = "primary.persistence.size"
-    value = var.drupal_db_storage_size
-  }
-  set {
-    name  = "secondary.persistence.size"
-    value = var.drupal_db_storage_size
-  }
-  set {
-    name  = "secondary.replicaCount"
-    value = var.number_of_secondary_db_replicas
-  }
-  set {
-    name  = "metrics.enabled"
-    value = "true"
-  }
-  set {
-    name  = "metrics.serviceMonitor.enabled"
-    value = "true"
-  }
-  set {
-    name  = "primary.extraFlags"
-    value = "--transaction-isolation=READ-COMMITTED"
-  }
-  set {
-    name  = "secondary.extraFlags"
-    value = "--transaction-isolation=READ-COMMITTED"
-  }
+  values = [
+    yamlencode({
+      auth = {
+        rootPassword = var.db_admin_password
+        database     = var.db_schema
+        username     = var.db_username
+        password     = var.db_password
+      }
+      global = {
+        defaultStorageClass = var.db_storage_class
+      }
+      architecture = "replication"
+      primary = {
+        persistence = {
+          size = var.drupal_db_storage_size
+        }
+        extraFlags = "--transaction-isolation=READ-COMMITTED"
+        resources = {
+          requests = {
+            cpu    = "1"
+            memory = "1Gi"
+          }
+          limits = {
+            # Generous cap; remove to run without limits
+            cpu    = "2"
+            memory = "2Gi"
+          }
+        }
+      }
+      secondary = {
+        replicaCount = var.number_of_secondary_db_replicas
+        persistence  = {
+          size = var.drupal_db_storage_size
+        }
+        extraFlags = "--transaction-isolation=READ-COMMITTED"
+        resources = {
+          requests = {
+            cpu    = "500m"
+            memory = "768Mi"
+          }
+          limits = {
+            cpu    = "1"
+            memory = "1.5Gi"
+          }
+        }
+      }
+      metrics = {
+        enabled = true
+        serviceMonitor = {
+          enabled = true
+        }
+        resources = {
+          requests = {
+            cpu    = "50m"
+            memory = "128Mi"
+          }
+          limits = {
+            cpu    = "200m"
+            memory = "256Mi"
+          }
+        }
+      }
+    })
+  ]
 }
