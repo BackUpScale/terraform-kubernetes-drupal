@@ -12,5 +12,5 @@ resource "kubernetes_persistent_volume_claim" "drupal_files_pvc" {
       }
     }
   }
-  depends_on = [var.longhorn_ready]
+  depends_on = [var.drupal_files_pv_dependency]
 }

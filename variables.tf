@@ -38,7 +38,7 @@ variable "technical_contact_email" {
   type = string
 }
 variable "cron_key" {
-  description = "The key part of the Cron URL you can find at /admin/config/system/cron, after the https://dashboard.backupscale.com/cron/"
+  description = "The key part of the Cron URL you can find at /admin/config/system/cron, after the https://example.com/cron/"
   sensitive   = true
   type        = string
 }
@@ -150,7 +150,7 @@ variable "drupal_secret_collection_name" {
 }
 variable "db_username" {
   type    = string
-  default = "dashboard"
+  default = "drupal"
 }
 variable "db_schema" {
   type    = string
@@ -238,14 +238,13 @@ variable "client_ip_preservation_annotation_value" {
   default = "send-proxy-v2"
 }
 variable "drupal_config_overrides" {
-  description = "Drupal config & settings overrides"
+  description = "Drupal config & settings overrides; see https://docs.platform.sh/development/variables.html#implementation-example for examples."
   type        = map(string)
   sensitive   = true
   default     = {}
 }
-
-# Indicators.
-variable "longhorn_ready" {
-  description = "Indicator that Longhorn is ready and deployed."
+variable "drupal_files_pv_dependency" {
+  description = "A dependency required before the PVC gets set up. Using the name of the k8s resource is simplest as long as it's the full path, which will create the dependency (e.g. an output from another module that's defined by `helm_release.longhorn.name`)."
   type        = string
+  default     = null
 }
