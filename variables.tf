@@ -1,4 +1,3 @@
-# Mandatory inputs from parent module.
 variable "cluster_terraform_id" {}
 variable "environment_is_production" {
   default = false
@@ -11,10 +10,20 @@ variable "public_hostname" {
   description = "Set this from your DNS record resource to ensure it exists before HTTPS certificate verification (e.g. `cloudflare_record.drupal_public_hostname.name`)"
   type = string
 }
-variable "drupal_files_storage_class" {}
+variable "drupal_files_storage_class" {
+  type = string
+  default = "default"
+}
+variable "drupal_files_access_mode" {
+  type = string
+  default = "ReadWriteMany"
+}
 variable "namespace" {}
 variable "container_registry_credentials" {}
-variable "db_storage_class" {}
+variable "db_storage_class" {
+  type = string
+  default = "default"
+}
 variable "db_admin_password" {
   sensitive = true
   type = string
@@ -33,6 +42,9 @@ variable "drupal_container_image_url" {
 }
 variable "trusted_ip_address_ranges" {
   type    = list(string)
+  default = [
+    "192.168.1.0/24",
+  ]
 }
 variable "technical_contact_email" {
   type = string
@@ -61,8 +73,6 @@ variable "loadbalancer_algorithm_annotation_value" {
   default     = "least_connections"
   type        = string
 }
-
-# Optionals with defaults.
  variable "drupal_files_volume_name" {
    type    = string
    default = "drupal-files"
@@ -244,7 +254,7 @@ variable "drupal_config_overrides" {
   default     = {}
 }
 variable "drupal_files_pv_dependency" {
-  description = "A dependency required before the PVC gets set up. Using the name of the k8s resource is simplest as long as it's the full path, which will create the dependency (e.g. an output from another module that's defined by `helm_release.longhorn.name`)."
+  description = "A dependency required before the PVC gets set up. Using the ID of the k8s resource is simplest as long as it's the full path, which will create the dependency (e.g. an output from another module that's defined by `helm_release.longhorn.id`)."
   type        = string
   default     = null
 }
