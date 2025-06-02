@@ -25,21 +25,33 @@ This module does a lot.  Here's what it can do for you at a high level:
 * Provides VPN-only access to Drupal's administration pages
 * Sets up a Kubernetes cron job to run Drupal's cron tasks
 * Stores sensitive passed-in data as Kubernetes secrets
-* Makes just about everything configurable via variables
 * Sets your [trusted host patterns](https://www.drupal.org/docs/getting-started/installing-drupal/trusted-host-settings)
 * Sets your [reverse proxy addresses](https://www.drupal.org/docs/getting-started/installing-drupal/using-a-load-balancer-or-reverse-proxy)
+* Provides a mechanism to inject [configuration overrides](https://www.drupal.org/docs/drupal-apis/configuration-api/configuration-override-system) into Drupal settings (e.g. secrets that you don't want in the DB)
+* Makes just about everything configurable via variables
 
 ## Non-Terraform components
 
 ### Dockerfile
 
-You'll need a Drupal image that the deployment can use, which can be built from a Dockerfile.  As we couldn't find a good one, we made one ourselves.
+You'll need a Drupal image that the deployment can use, which can be built from a Dockerfile.  As we couldn't find a good one, we [made one ourselves](examples/Dockerfile).  Feel free to modify the example to your liking, and then use that.
 
-*TBD*
+You can have your continuous integration (CI) system (e.g. GitLab CI) build it from your Drupal code repository, and then push it to your container registry.
 
 ### Drupal settings
 
-*TBD*
+Our example [settings.kubernetes.php](examples/settings.kubernetes.php) shouldn't require any modification.  You can add it to your Drupal code repository, and the Dockerfile will use it.
+
+### Configuration overrides
+
+It's possible to pass a list of [configuration overrides](https://www.drupal.org/docs/drupal-apis/configuration-api/configuration-override-system) (e.g. secrets that you don't want in the Drupal DB) into the module.  We use [Platform.sh's methodology](https://docs.platform.sh/development/variables.html#implementation-example).  Here's an example of how to pass a single entry, but you can add more, one per line:
+
+
+```terraform
+  drupal_config_overrides = {
+    "drupalconfig:symfony_mailer.mailer_transport.proton_mail:configuration:pass" = var.public_address_smtp_password
+  }
+```
 
 ## What's missing
 
