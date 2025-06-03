@@ -53,6 +53,21 @@ It's possible to pass a list of [configuration overrides](https://www.drupal.org
   }
 ```
 
+## Module metadata
+
+These can be found at the Terraform Registry:
+
+* [Inputs](https://registry.terraform.io/modules/BackUpScale/drupal/kubernetes/latest?tab=inputs)
+* [Outputs](https://registry.terraform.io/modules/BackUpScale/drupal/kubernetes/latest?tab=outputs)
+* [Dependencies](https://registry.terraform.io/modules/BackUpScale/drupal/kubernetes/latest?tab=dependencies)
+* [Resources](https://registry.terraform.io/modules/BackUpScale/drupal/kubernetes/latest?tab=resources)
+
+The [Provisioning Instructions](https://registry.terraform.io/modules/BackUpScale/drupal/kubernetes/latest) are on that page too.
+
+## Example implementation
+
+*TODO*
+
 ## What's missing
 
 While we try to as much as we can here, this project can't do everything.  Notably...
