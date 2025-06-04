@@ -1,9 +1,11 @@
 variable "cluster_terraform_id" {}
 variable "environment_is_production" {
+  description = "Is this the Production environment? Used to determine the Let's Encrypt environment for fetching TLS certificates.  Say 'no' here during testing so you don't hit their Production usage limits."
   default = false
   type = bool
 }
 variable "private_hostname" {
+  description = "The internal hostname for your Drupal site on your private network, accessible via your VPN, e.g. 'drupal.example.dev'."
   type = string
 }
 variable "public_hostname" {
@@ -11,16 +13,23 @@ variable "public_hostname" {
   type = string
 }
 variable "drupal_files_storage_class" {
+  description = "The Kubernetes storage class to use for your Drupal file system, which should support ReadWriteMany (RWX) if you want multiple replicas (the default)."
   type = string
   default = "default"
 }
 variable "drupal_files_access_mode" {
+  description = "ReadWriteMany (RWX) if you want multiple replicas (default).  Otherwise, ReadWriteOnce (RWO) is fine."
   type = string
   default = "ReadWriteMany"
 }
-variable "namespace" {}
-variable "container_registry_credentials" {}
+variable "namespace" {
+  description = "The name of the namespace where Drupal resources will get provisioned."
+}
+variable "container_registry_credentials" {
+  description = "The credentials used to access the container registry. See README for details."
+}
 variable "db_storage_class" {
+  description = "The Kubernetes storage class to use for the database. RWO support is sufficient because each DB replica has its own storage; RWX isn't necessary."
   type = string
   default = "default"
 }
