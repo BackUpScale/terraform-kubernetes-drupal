@@ -66,7 +66,58 @@ The [Provisioning Instructions](https://registry.terraform.io/modules/BackUpScal
 
 ## Example implementation
 
-*TODO*
+Here's an example of a minimal implementation.  There is more information on some of these below.
+
+### Module inclusion
+
+```hcl
+module "drupal" {
+  source = "./modules/drupal"
+  cluster_terraform_id = civo_kubernetes_cluster.my_cluster.id
+  namespace = var.drupal_dashboard_namespace
+  container_registry_credentials = module.gitlab.rendered_container_registry_credentials
+  cron_key = var.drupal_dashboard_cron_key
+  db_admin_password = var.drupal_dashboard_root_password
+  db_password = var.drupal_dashboard_db_password
+  drupal_container_image_url = "registry.gitlab.com/backupscale/infrastructure/drupal-dashboard-${var.cloud_environment}:latest"
+  firewall_id_annotation_value = civo_firewall.custom_firewall.id
+  hash_salt = var.drupal_dashboard_hash_salt
+  public_hostname = cloudflare_record.dashboard_public_hostname.name
+  private_hostname = cloudflare_record.dashboard_private_hostname.name
+  technical_contact_email = var.technical_contact_email
+}
+```
+
+### Container registry credentials
+
+You container registry credentials should probably come from another module (e.g. `gitlab`, if you're using the GitLab container registry) like this:
+
+```hcl
+output "rendered_container_registry_credentials" {
+  value = data.template_file.container_registry_credentials.rendered
+}
+```
+
+...where the data is defined like so:
+
+```hcl
+data "template_file" "container_registry_credentials" {
+  template = file("${path.module}/container_registry_credentials_template.json")
+  vars = {
+    docker-username = var.registry_pull_token_user
+    docker-password = var.registry_pull_token_pass
+    docker-server = "https://registry.gitlab.com"
+    docker-email = "placeholder@example.com"
+    auth = base64encode("${var.registry_pull_token_user}:${var.registry_pull_token_pass}")
+  }
+}
+```
+
+...and ``container_registry_credentials.json` has the contents:
+
+```json
+{"auths":{"${docker-server}":{"username":"${docker-username}","password":"${docker-password}","email":"${docker-email}","auth":"${auth}"}}}
+```
 
 ## What's missing
 
@@ -83,4 +134,11 @@ For our own instance, we have a GitLab CI pipeline schedule that runs a job to d
 ## References
 
 * [Terraform registry module](https://registry.terraform.io/modules/BackUpScale/drupal/kubernetes)
-* [Project tracker for issues, MRs, etc.](https://gitlab.com/backupscale/drubernetes)
+* [Project tracker for issues, MRs, etc.](https://gitlab.com/backupscale/drubernetes)  
+
+## Feedback and contributions
+
+Feedback and contributions are welcome!  To contribute, please:
+
+1. [Create an issue on the board](https://gitlab.com/backupscale/drubernetes/-/boards), and then
+2. a merge request (MR) from within the issue (if you can).
