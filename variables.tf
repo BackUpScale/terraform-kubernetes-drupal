@@ -34,14 +34,17 @@ variable "db_storage_class" {
   default = "default"
 }
 variable "db_admin_password" {
+  description = "The root password for the DB server."
   sensitive = true
   type = string
 }
 variable "db_password" {
+  description = "The password for the Drupal application user that has access to the Drupal DB/schema."
   sensitive = true
   type = string
 }
 variable "hash_salt" {
+  description = "Set this to something that's cryptographically secure (e.g. `openssl rand -base64 64`). See https://git.drupalcode.org/project/drupal/-/blob/11.x/sites/default/default.settings.php?ref_type=heads#L272 for more information."
   sensitive = true
   type = string
 }
@@ -50,12 +53,14 @@ variable "drupal_container_image_url" {
   type        = string
 }
 variable "trusted_ip_address_ranges" {
+  description = "The IP addresses to trust with headers containing source IP addresses from end-user clients. If not included, the Drupal logs will contain the proxy IP address, which is not the true source. Provide your proxy IP addresses here."
   type    = list(string)
   default = [
     "192.168.1.0/24",
   ]
 }
 variable "technical_contact_email" {
+  description = "Provided to Let's Encrypt for TLS certificate notifications. It may have other uses in the future."
   type = string
 }
 variable "cron_key" {
@@ -83,22 +88,27 @@ variable "loadbalancer_algorithm_annotation_value" {
   type        = string
 }
  variable "drupal_files_volume_name" {
+   description = "The Kubernetes volume name of the Drupal file system."
    type    = string
    default = "drupal-files"
  }
 variable "drupal_root_directory" {
+  description = "The web directory (or 'docroot') of the Drupal site code."
   type    = string
   default = "/app/web"
 }
 variable "drupal_files_directory" {
+  description = "The path to the Drupal file system from the Drupal root directory."
   type    = string
   default = "sites/default/files"
 }
 variable "drupal_files_storage_size" {
+  description = "The size of the Drupal file system."
   type    = string
   default = "2Gi"
 }
 variable "drupal_files_pvc_name" {
+  description = "The name of the Kubernetes persistent volume claim (PVC) for the Drupal file system."
   type    = string
   default = "drupal-files-pvc"
 }
@@ -156,22 +166,27 @@ variable "mariadb_metrics_memory_limit" {
   default = "256Mi"
 }
 variable "drupal_db_storage_size" {
+  description = "The size of the Drupal database."
   type    = string
   default = "40Gi"
 }
 variable "db_port" {
+  description = "The port number for the database."
   type = number
   default = 3306
 }
 variable "drupal_secret_collection_name" {
+  description = "The name of the Kubernetes secret for holding Drupal configuration secrets."
   type    = string
   default = "drupal-secrets"
 }
 variable "db_username" {
+  description = "The name of the Drupal application's user that accesses its DB schema on the DB server."
   type    = string
   default = "drupal"
 }
 variable "db_schema" {
+  description = "The name of Drupal's DB schema/database within the DB server."
   type    = string
   default = "drupal"
 }
@@ -202,22 +217,27 @@ variable "drupal_memory_limit" {
   default = "2Gi"
 }
 variable "kubernetes_drupal_service_name" {
+  description = "The name of the Kubernetes service that provides Drupal Web access."
   type    = string
   default = "drupal-service"
 }
 variable "http_port" {
+  description = "The HTTP port number to provide the Drupal service."
   type = number
   default = 80
 }
 variable "https_port" {
+  description = "The HTTPS port number to provide the Drupal service."
   type = number
   default = 443
 }
 variable "letsencrypt_staging_environment_name" {
+  description = "The name & ID of Let's Encrypt's Staging environment for handling TLS certificates."
   type = string
   default = "staging"
 }
 variable "letsencrypt_production_environment_name" {
+  description = "The name & ID of Let's Encrypt's Production environment for handling TLS certificates."
   type = string
   default = "production"
 }
