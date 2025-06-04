@@ -66,24 +66,29 @@ The [Provisioning Instructions](https://registry.terraform.io/modules/BackUpScal
 
 ## Example implementation
 
-Here's an example of a minimal implementation.  There is more information on some of these below.
+Here's an example of a minimal implementation.  There is more information on some of these below the module inclusion.
+
+For sensitive values (i.e. secrets), don't set these directly in your root variables file because you don't want them in your Git repository.  Instead, get them from [environment variables](https://developer.hashicorp.com/terraform/language/values/variables#environment-variables) (e.g. `TF_VAR_drupal_dashboard_root_password`).  You can set all of these by exporting your vault (e.g. [SOPS](https://getsops.io/) or [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html)) to your environment beforehand.
 
 ### Module inclusion
 
 ```hcl
 module "drupal" {
-  source = "./modules/drupal"
+  # This can also be a relative path if you've installed it as a Git submodule.
+  # If you're doing that, leave out the "version".
+  source  = "BackUpScale/drupal/kubernetes"
+  version = "1.0.0"
   cluster_terraform_id = civo_kubernetes_cluster.my_cluster.id
-  namespace = var.drupal_dashboard_namespace
+  namespace = var.drupal_namespace
   container_registry_credentials = module.gitlab.rendered_container_registry_credentials
-  cron_key = var.drupal_dashboard_cron_key
+  cron_key = var.drupal_cron_key
   db_admin_password = var.drupal_dashboard_root_password
   db_password = var.drupal_dashboard_db_password
-  drupal_container_image_url = "registry.gitlab.com/backupscale/infrastructure/drupal-dashboard-${var.cloud_environment}:latest"
-  firewall_id_annotation_value = civo_firewall.custom_firewall.id
-  hash_salt = var.drupal_dashboard_hash_salt
-  public_hostname = cloudflare_record.dashboard_public_hostname.name
-  private_hostname = cloudflare_record.dashboard_private_hostname.name
+  drupal_container_image_url = "registry.gitlab.com/myorg/infrastructure/drupal-${var.cloud_environment}:latest"
+  firewall_id_annotation_value = civo_firewall.myfirewall.id
+  hash_salt = var.drupal_hash_salt
+  public_hostname = cloudflare_record.drupal_public_hostname.name
+  private_hostname = cloudflare_record.drupal_private_hostname.name
   technical_contact_email = var.technical_contact_email
 }
 ```
