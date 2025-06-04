@@ -118,50 +118,62 @@ variable "mariadb_helm_chart_version" {
   default = "20.4.2"
 }
 variable "mariadb_primary_cpu_request" {
+  description = "The minimum CPU requested by the primary MariaDB pod."
   type = string
   default = "1"
 }
 variable "mariadb_primary_memory_request" {
+  description = "The minimum memory requested by the primary MariaDB pod."
   type = string
   default = "1Gi"
 }
 variable "mariadb_primary_cpu_limit" {
+  description = "The maximum CPU limit of the primary MariaDB pod."
   type = string
   default = "2"
 }
 variable "mariadb_primary_memory_limit" {
+  description = "The maximum memory limit of the primary MariaDB pod."
   type = string
   default = "2Gi"
 }
 variable "mariadb_secondary_cpu_request" {
+  description = "The minimum CPU requested by the secondary MariaDB pods."
   type = string
   default = "500m"
 }
 variable "mariadb_secondary_memory_request" {
+  description = "The minimum memory requested by the secondary MariaDB pods."
   type = string
   default = "768Mi"
 }
 variable "mariadb_secondary_cpu_limit" {
+  description = "The maximum CPU limit of the secondary MariaDB pods."
   type = string
   default = "1"
 }
 variable "mariadb_secondary_memory_limit" {
+  description = "The maximum memory limit of the secondary MariaDB pods."
   type = string
   default = "1.5Gi"
 }
 variable "mariadb_metrics_cpu_request" {
+  description = "The minimum CPU requested by the MariaDB metrics pod."
   type = string
   default = "50m"
 }
 variable "mariadb_metrics_memory_request" {
+  description = "The minimum memory requested by the MariaDB metrics pod."
   type = string
   default = "128Mi"
 }
 variable "mariadb_metrics_cpu_limit" {
+  description = "The maximum CPU limit of the MariaDB metrics pod."
   type = string
   default = "200m"
 }
 variable "mariadb_metrics_memory_limit" {
+  description = "The maximum memory limit of the MariaDB metrics pod."
   type = string
   default = "256Mi"
 }
@@ -201,18 +213,22 @@ variable "drupal_replicas" {
   default     = 2
 }
 variable "drupal_cpu_request" {
+  description = "The minimum CPU requested by each of the Drupal pods."
   type    = string
   default = "250m"
 }
 variable "drupal_memmory_request" {
+  description = "The minimum memory requested by each of the Drupal pods."
   type    = string
   default = "1Gi"
 }
 variable "drupal_cpu_limit" {
+  description = "The maximum CPU limit of the Drupal pods."
   type    = string
   default = "500m"
 }
 variable "drupal_memory_limit" {
+  description = "The maximum memory limit of the Drupal pods."
   type    = string
   default = "2Gi"
 }
