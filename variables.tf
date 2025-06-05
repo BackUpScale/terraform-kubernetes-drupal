@@ -1,4 +1,6 @@
-variable "cluster_terraform_id" {}
+variable "cluster_terraform_id" {
+  description = "Normally, the Terraform ID of your cluster used as a dependency to be there before provisioning (e.g. `civo_kubernetes_cluster.mycluster.id`), but can be any dependency you want provisioned before this module (e.g. another module output you'd like provisioned first)."
+}
 variable "environment_is_production" {
   description = "Is this the Production environment? Used to determine the Let's Encrypt environment for fetching TLS certificates.  Say 'no' here during testing so you don't hit their Production usage limits."
   default = false
