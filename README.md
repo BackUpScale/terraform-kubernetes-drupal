@@ -78,6 +78,10 @@ module "drupal" {
   # If you're doing that, leave out the "version".
   source  = "BackUpScale/drupal/kubernetes"
   version = "1.0.0"
+  # Assuming you have `alias = "main"` in your `kubernetes` provider definition.
+  providers = {
+    kubernetes = kubernetes.main
+  }
   cluster_terraform_id = civo_kubernetes_cluster.my_cluster.id
   namespace = var.drupal_namespace
   container_registry_credentials = module.gitlab.rendered_container_registry_credentials
@@ -123,6 +127,28 @@ data "template_file" "container_registry_credentials" {
 ```json
 {"auths":{"${docker-server}":{"username":"${docker-username}","password":"${docker-password}","email":"${docker-email}","auth":"${auth}"}}}
 ```
+
+## Drupal operations
+
+### Importing a database
+
+* `gunzip --stdout /tmp/drupal.sql.gz | kubectl --namespace=drupal exec -i service/drupal-service -- drush sql-cli`
+
+### Running non-interactive Drush commands
+
+Clear caches:
+* `kubectl --namespace=drupal exec -i service/drupal-service -- drush cache:rebuild`
+
+Dump database:
+* `kubectl --namespace=drupal exec -i service/drupal-service -- drush sql:dump`
+
+### Running interactive Drush commands
+
+Get a MariaDB database shell:
+* `kubectl --namespace=drupal exec -it service/drupal-service -- drush sql:cli`
+
+Get a shell on one of the Drupal containers:
+* `kubectl --namespace=drupal exec -it service/drupal-service -- /bin/bash`
 
 ## What's missing
 
