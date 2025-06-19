@@ -134,13 +134,20 @@ data "template_file" "container_registry_credentials" {
 
 * `gunzip --stdout /tmp/drupal.sql.gz | kubectl --namespace=drupal exec -i service/drupal-service -- drush sql-cli`
 
+### Dumping a database
+
+Normally, one would expect to be able to do something like this:
+
+* `kubectl --namespace=drupal exec -i service/drupal-service -- drush sql:dump --gzip > /tmp/drupal.dump.sql.gz`
+
+It will create a valid dump inside the pod, but all of the bytes probably won't make it back to your workstation, which will produce a dump file that can't be imported. The culprit is almost always the way `kubectl exec` streams large amounts to `stdout`: the SPDY stream can be interrupted, silently truncated, or timed-out long before the database dump is finished, so the file you redirect locally stops in the middle without any error message. This is [a known issue in Kubernetes](https://github.com/kubernetes/kubernetes/issues/124571).  It should work better with Kubernetes clusters ≥ v1.31, which defaults to WebSocket streaming (which has fewer truncation bugs﻿).
+
+In any case, a better option is to download one of your backups, and use that instead.  Besides avoiding the above issue, this process also forces you to test your backups, which is always a good idea.  For more information on backups, see [the section here](#backups).
+
 ### Running non-interactive Drush commands
 
 Clear caches:
 * `kubectl --namespace=drupal exec -i service/drupal-service -- drush cache:rebuild`
-
-Dump database:
-* `kubectl --namespace=drupal exec -i service/drupal-service -- drush sql:dump`
 
 ### Running interactive Drush commands
 
@@ -160,12 +167,32 @@ It would be hard to find a generic way to automate backups for all Drupal site r
 
 **So make sure to get your own backups rolling!**
 
-For our own instance, we have a GitLab CI pipeline schedule that runs a job to dump the database, compresses it, and then pushes it to a bucket at our object storage provider.
+One option is to set up a GitLab CI pipeline schedule that runs a job to dump the database, compresses it, and then pushes it to a bucket at your object storage provider.  Here's an example of such a job that pushes a DB dump to BackBlaze:
+
+```yaml
+backup_drupal_db:
+  image: $KUBECTL_IMAGE
+  stage: backup
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  script:
+    - >
+      apk add --no-cache
+      --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main
+      --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community
+      --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
+      b2-tools
+    - kubectl config use-context mygroup/myproject:prod  # group/project:agent
+    - kubectl --namespace=$DRUPAL_NAMESPACE exec deploy/drupal -- sh -c 'drush sql-dump' | gzip > "$DRUPAL_DB_DUMP_SOURCE_PATH"
+    - b2 account authorize "$B2_ID" "$B2_KEY"
+    - b2 file upload --no-progress "$DRUPAL_DB_BACKUP_BUCKET" "$DRUPAL_DB_DUMP_SOURCE_PATH" "$DRUPAL_DB_DUMP_UPLOAD_FOLDER/db-$(date +%FT%T%Z).sql.gz"
+```
 
 ## References
 
-* [Terraform registry module](https://registry.terraform.io/modules/BackUpScale/drupal/kubernetes)
-* [Project tracker for issues, MRs, etc.](https://gitlab.com/backupscale/drubernetes)  
+* [Introductory article: Want to Run Drupal in Kubernetes? Try Our New Terraform Module](https://backupscale.com/posts/drubernetes-terraform-module-for-kubernetes-clusters/)
+* [Drubernetes on the Terraform Registry](https://registry.terraform.io/modules/BackUpScale/drupal/kubernetes)
+* [Drubernetes project tracker for issues, MRs, etc.](https://gitlab.com/backupscale/drubernetes)
 
 ## Feedback and contributions
 
