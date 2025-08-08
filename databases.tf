@@ -12,6 +12,7 @@ resource "helm_release" "mariadb" {
         database     = var.db_schema
         username     = var.db_username
         password     = var.db_password
+        replicationPassword = var.db_replication_user_password
       }
       global = {
         defaultStorageClass = var.db_storage_class
