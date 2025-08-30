@@ -1,3 +1,4 @@
+# @todo: Remove unused variables.
 variable "cluster_terraform_id" {
   description = "Normally, the Terraform ID of your cluster used as a dependency to be there before provisioning (e.g. `civo_kubernetes_cluster.mycluster.id`), but can be any dependency you want provisioned before this module (e.g. another module output you'd like provisioned first)."
 }
@@ -26,6 +27,7 @@ variable "drupal_files_access_mode" {
 }
 variable "namespace" {
   description = "The name of the namespace where Drupal resources will get provisioned."
+  type = string
 }
 variable "container_registry_credentials" {
   description = "The credentials used to access the container registry. See README for details."
@@ -119,50 +121,31 @@ variable "drupal_files_pvc_name" {
   type    = string
   default = "drupal-files-pvc"
 }
-variable "mariadb_helm_chart_version" {
-  description = "See https://artifacthub.io/packages/helm/bitnami/mariadb"
+variable "mariadb_operator_chart_version" {
+  # pin to a tested operator release
+  description = "The Helm chart version for the MariaDB operator. See https://artifacthub.io/packages/helm/mariadb-operator/mariadb-operator"
   type    = string
-  default = "20.4.2"
+  default = "25.8.3"
 }
-variable "mariadb_primary_cpu_request" {
-  description = "The minimum CPU requested by the primary MariaDB pod."
+variable "mariadb_cpu_request" {
+  description = "The minimum CPU requested by MariaDB pods."
   type = string
   default = "1"
 }
-variable "mariadb_primary_memory_request" {
-  description = "The minimum memory requested by the primary MariaDB pod."
+variable "mariadb_memory_request" {
+  description = "The minimum memory requested by MariaDB pods."
   type = string
   default = "1Gi"
 }
-variable "mariadb_primary_cpu_limit" {
-  description = "The maximum CPU limit of the primary MariaDB pod."
+variable "mariadb_cpu_limit" {
+  description = "The maximum CPU limit of the MariaDB pods."
   type = string
   default = "2"
 }
-variable "mariadb_primary_memory_limit" {
-  description = "The maximum memory limit of the primary MariaDB pod."
+variable "mariadb_memory_limit" {
+  description = "The maximum memory limit of MariaDB pods."
   type = string
   default = "2Gi"
-}
-variable "mariadb_secondary_cpu_request" {
-  description = "The minimum CPU requested by the secondary MariaDB pods."
-  type = string
-  default = "500m"
-}
-variable "mariadb_secondary_memory_request" {
-  description = "The minimum memory requested by the secondary MariaDB pods."
-  type = string
-  default = "768Mi"
-}
-variable "mariadb_secondary_cpu_limit" {
-  description = "The maximum CPU limit of the secondary MariaDB pods."
-  type = string
-  default = "1"
-}
-variable "mariadb_secondary_memory_limit" {
-  description = "The maximum memory limit of the secondary MariaDB pods."
-  type = string
-  default = "1.5Gi"
 }
 variable "mariadb_metrics_cpu_request" {
   description = "The minimum CPU requested by the MariaDB metrics pod."
@@ -209,10 +192,10 @@ variable "db_schema" {
   type    = string
   default = "drupal"
 }
-variable "number_of_secondary_db_replicas" {
-  description = "Number of secondary database replicas: Total is this number + 1 (for the primary). 2+ is recommended."
+variable "mariadb_replicas" {
+  description = "Total number of database replicas. 3+ is recommended."
   type    = number
-  default = 2
+  default = 3
 }
 variable "drupal_replicas" {
   description = "Number of Drupal pod replicas"
