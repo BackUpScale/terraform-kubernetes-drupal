@@ -47,11 +47,6 @@ variable "db_password" {
   sensitive = true
   type = string
 }
-variable "db_replication_user_password" {
-  description = "The DB replication user password, which is required for upgrades."
-  sensitive = true
-  type = string
-}
 variable "hash_salt" {
   description = "Set this to something that's cryptographically secure (e.g. `openssl rand -base64 64`). See https://git.drupalcode.org/project/drupal/-/blob/11.x/sites/default/default.settings.php?ref_type=heads#L272 for more information."
   sensitive = true
