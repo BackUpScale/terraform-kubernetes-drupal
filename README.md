@@ -87,7 +87,6 @@ module "drupal" {
   container_registry_credentials = module.gitlab.rendered_container_registry_credentials
   cron_key = var.drupal_cron_key
   db_admin_password = var.drupal_dashboard_root_password
-  db_replication_user_password = var.drupal_db_replication_user_password
   db_password = var.drupal_dashboard_db_password
   drupal_container_image_url = "registry.gitlab.com/myorg/infrastructure/drupal-${var.cloud_environment}:latest"
   firewall_id_annotation_value = civo_firewall.myfirewall.id
@@ -123,7 +122,7 @@ data "template_file" "container_registry_credentials" {
 }
 ```
 
-...and ``container_registry_credentials.json` has the contents:
+...and `container_registry_credentials.json` has the contents:
 
 ```json
 {"auths":{"${docker-server}":{"username":"${docker-username}","password":"${docker-password}","email":"${docker-email}","auth":"${auth}"}}}
