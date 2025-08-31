@@ -1,5 +1,7 @@
 # Drubernetes
 
+[[_TOC_]]
+
 ## Introduction
 
 Drubernetes is a Terraform module for provisioning Drupal within a generic Kubernetes cluster.
