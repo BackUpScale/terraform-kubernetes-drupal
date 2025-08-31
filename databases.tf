@@ -23,19 +23,6 @@ resource "helm_release" "mariadb_operator" {
   })]
 }
 
-resource "kubernetes_secret_v1" "mariadb_secrets" {
-  metadata {
-    name      = "mariadb-secrets"
-    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
-  }
-  data = {
-    MARIADB_ROOT_PASSWORD = var.db_admin_password
-    MARIADB_USER          = var.db_username
-    MARIADB_PASSWORD      = var.db_password
-  }
-  type = "Opaque"
-}
-
 # @todo: Replace with kubectl_manifest
 resource "kubernetes_manifest" "mariadb_cluster" {
   manifest = {
@@ -47,7 +34,7 @@ resource "kubernetes_manifest" "mariadb_cluster" {
     }
     spec = {
       rootPasswordSecretKeyRef = {
-        name = kubernetes_secret_v1.mariadb_secrets.metadata[0].name
+        name = kubernetes_secret.drupal_secrets.metadata[0].name
         key  = "MARIADB_ROOT_PASSWORD"
       }
       storage = {
@@ -132,8 +119,8 @@ resource "kubernetes_manifest" "mariadb_user" {
     spec = {
       mariaDbRef = { name = "mariadb" }
       passwordSecretKeyRef = {
-        name = kubernetes_secret_v1.mariadb_secrets.metadata[0].name
-        key  = "MARIADB_PASSWORD"
+        name = kubernetes_secret.drupal_secrets.metadata[0].name
+        key  = "DATABASE_PASSWORD"
       }
     }
   }
