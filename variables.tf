@@ -1,4 +1,3 @@
-# @todo: Remove unused variables.
 variable "cluster_terraform_id" {
   description = "Normally, the Terraform ID of your cluster used as a dependency to be there before provisioning (e.g. `civo_kubernetes_cluster.mycluster.id`), but can be any dependency you want provisioned before this module (e.g. another module output you'd like provisioned first)."
 }
@@ -117,7 +116,6 @@ variable "drupal_files_pvc_name" {
   default = "drupal-files-pvc"
 }
 variable "mariadb_operator_chart_version" {
-  # pin to a tested operator release
   description = "The Helm chart version for the MariaDB operator. See https://artifacthub.io/packages/helm/mariadb-operator/mariadb-operator"
   type    = string
   default = "25.8.3"

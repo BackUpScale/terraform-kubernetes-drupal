@@ -9,7 +9,6 @@ resource "kubernetes_secret" "container_registry_secret" {
   type = "kubernetes.io/dockerconfigjson"
 }
 
-# @todo: Merge this?
 resource "kubernetes_secret" "drupal_secrets" {
   metadata {
     name      = var.drupal_secret_collection_name
