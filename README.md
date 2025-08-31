@@ -1,5 +1,3 @@
-# Drubernetes
-
 [[_TOC_]]
 
 ## Introduction
