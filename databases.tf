@@ -23,7 +23,6 @@ resource "helm_release" "mariadb_operator" {
   })]
 }
 
-
 resource "kubectl_manifest" "mariadb_cluster" {
   depends_on = [
     helm_release.mariadb_operator_crds,
