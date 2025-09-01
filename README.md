@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Drubernetes is a Terraform module for provisioning Drupal within a generic Kubernetes cluster.
+**Drubernetes** is a Terraform module for provisioning Drupal within a generic Kubernetes cluster.
 
 It tries to not make any assumptions about your cluster or cloud provider so you should be able to run this in any modern Kubernetes cluster at an cloud provider.  If you can't, please open an issue to add support for your use case.
 
