@@ -41,7 +41,7 @@ resource "kubectl_manifest" "mariadb_cluster" {
       storage:
         size: ${var.drupal_db_storage_size}
         storageClassName: ${var.db_storage_class}
-      replicas: ${var.mariadb_replicas}
+      replicas: ${var.mariadb_number_of_replicas}
       replication:
         enabled: true
       primaryService:

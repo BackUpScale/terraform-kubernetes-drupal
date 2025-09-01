@@ -185,7 +185,7 @@ variable "db_schema" {
   type    = string
   default = "drupal"
 }
-variable "mariadb_replicas" {
+variable "mariadb_number_of_replicas" {
   description = "Total number of database replicas. 3+ is recommended."
   type    = number
   default = 3
