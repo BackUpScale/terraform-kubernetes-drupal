@@ -188,6 +188,10 @@ backup_drupal_db:
     - b2 file upload --no-progress "$DRUPAL_DB_BACKUP_BUCKET" "$DRUPAL_DB_DUMP_SOURCE_PATH" "$DRUPAL_DB_DUMP_UPLOAD_FOLDER/db-$(date +%FT%T%Z).sql.gz"
 ```
 
+## Upgrades
+
+See the [release notes](https://gitlab.com/backupscale/drubernetes/-/releases) for details.
+
 ## References
 
 * [Introductory article: Want to Run Drupal in Kubernetes? Try Our New Terraform Module](https://backupscale.com/posts/drubernetes-terraform-module-for-kubernetes-clusters/)
