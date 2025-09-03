@@ -15,9 +15,10 @@ resource "kubernetes_secret" "drupal_secrets" {
     namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
   }
   data = {
-    DATABASE_PASSWORD = var.db_password
-    DRUPAL_HASH_SALT = var.hash_salt
-    cron_key = var.cron_key
+    MARIADB_ROOT_PASSWORD = var.db_admin_password
+    DATABASE_PASSWORD     = var.db_password
+    DRUPAL_HASH_SALT      = var.hash_salt
+    cron_key              = var.cron_key
   }
   type = "Opaque"
 }

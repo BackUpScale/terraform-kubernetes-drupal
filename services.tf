@@ -20,7 +20,7 @@ data "kubernetes_service" "mariadb_primary" {
     name      = "mariadb-primary"
     namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
   }
-  depends_on = [helm_release.mariadb]
+  depends_on = [kubectl_manifest.mariadb_grant]
 }
 
 data "kubernetes_service" "nginx_ingress" {

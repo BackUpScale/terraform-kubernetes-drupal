@@ -20,6 +20,10 @@ resource "kubernetes_deployment" "drupal" {
         labels = {
           app = "drupal"
         }
+        annotations = {
+          # Force rollout if ConfigMap data changes
+          "checksum/app-variables" = sha256(jsonencode(kubernetes_config_map.app_variables.data))
+        }
       }
       spec {
         image_pull_secrets {
