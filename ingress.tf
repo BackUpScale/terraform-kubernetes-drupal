@@ -154,6 +154,9 @@ spec:
         - path:
             type: PathPattern
             value: "^/(core/(install|authorize|rebuild)|update)\\.php$"
+        - path:
+            type: PathPrefix
+            value: ${var.additional_internal_only_drupal_path}
       backendRefs:
         - name: ${var.kubernetes_drupal_service_name}
           port: ${var.http_port}

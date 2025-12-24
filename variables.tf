@@ -290,3 +290,8 @@ variable "drupal_files_pv_dependency" {
   type        = string
   default     = null
 }
+variable "additional_internal_only_drupal_path" {
+  description = "Any additional Drupal site path that should only be accessible on the private network. If you'd like to disable this, set it to a path that you don't use on your site."
+  type        = string
+  default     = "/jsonapi"
+}
