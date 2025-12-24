@@ -100,10 +100,10 @@ metadata:
 spec:
   hostnames: [ "${var.public_hostname}" ]
   parentRefs:
-    - name: drupal-gateway
+    - name: ${var.gateway_name}
       namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
       sectionName: https    # attach to HTTPS listener for normal traffic
-    - name: drupal-gateway
+    - name: ${var.gateway_name}
       namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
       sectionName: http     # attach to HTTP listener to handle redirects
   rules:
@@ -140,7 +140,7 @@ metadata:
 spec:
   hostnames: [ "${var.private_hostname}" ]
   parentRefs:
-    - name: drupal-gateway
+    - name: ${var.gateway_name}
       namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
       # Explicitly bind to HTTP listener only because we're on the VPN.
       sectionName: http
