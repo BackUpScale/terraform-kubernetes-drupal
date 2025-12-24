@@ -243,10 +243,10 @@ resource "kubectl_manifest" "lets_encrypt_production" {
           name: acme-prod-key
         solvers:
           - http01:
-          gatewayHTTPRoute:
-            parentRefs:
-              - kind: Gateway
-                name: ${var.gateway_name}
-                namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+              gatewayHTTPRoute:
+                parentRefs:
+                  - kind: Gateway
+                    name: ${var.gateway_name}
+                    namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
 YAML
 }
