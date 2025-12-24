@@ -250,10 +250,14 @@ variable "cron_job_interval" {
   type        = number
   default     = 60
 }
-variable "nginx_ingress_helm_chart_version" {
-  description = "See https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx"
+variable "envoy_gateway_helm_chart_version" {
+  description = "See https://artifacthub.io/packages/helm/envoy-gateway/gateway-helm"
   type = string
-  default = "4.12.2"
+  default = "1.6.1"
+}
+variable "gateway_name" {
+  type = string
+  default = "drupal-gateway"
 }
 variable "cert_manager_helm_chart_version" {
   description = "See https://artifacthub.io/packages/helm/cert-manager/cert-manager"

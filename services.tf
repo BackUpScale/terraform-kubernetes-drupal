@@ -14,7 +14,6 @@ resource "kubernetes_service" "drupal_service" {
     type = "ClusterIP"
   }
 }
-
 data "kubernetes_service" "mariadb_primary" {
   metadata {
     name      = "mariadb-primary"
@@ -22,10 +21,10 @@ data "kubernetes_service" "mariadb_primary" {
   }
   depends_on = [kubectl_manifest.mariadb_grant]
 }
-
-data "kubernetes_service" "nginx_ingress" {
+data "kubernetes_service" "envoy_gateway" {
   metadata {
-    name      = "${helm_release.nginx_ingress.name}-ingress-nginx-controller"
-    namespace = helm_release.nginx_ingress.namespace
+    # TODO: Adjust if your Service has a different name.
+    name      = "envoy-gateway"
+    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
   }
 }
