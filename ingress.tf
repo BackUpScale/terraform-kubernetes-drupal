@@ -68,7 +68,6 @@ spec:
   gatewayClassName: envoy-gateway-class
   listeners:
     - name: http
-      hostname: ${var.public_hostname}
       port: ${var.http_port}
       protocol: HTTP
       # HTTP listener on port 80 is needed for ACME HTTP-01 challenges.
@@ -128,7 +127,6 @@ spec:
             scheme: https
 YAML
 }
-
 # Admin access via VPN only.
 resource "kubectl_manifest" "drupal_admin_route" {
   depends_on = [kubectl_manifest.gateway]
