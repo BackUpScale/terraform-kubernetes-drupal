@@ -151,7 +151,7 @@ spec:
             type: PathPrefix
             value: "/admin"
         - path:
-            type: PathPattern
+            type: RegularExpression
             value: "^/(core/(install|authorize|rebuild)|update)\\.php$"
         - path:
             type: PathPrefix
