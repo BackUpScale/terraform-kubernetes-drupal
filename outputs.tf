@@ -9,9 +9,9 @@ output "service_cluster_ip" {
 }
 
 output "service_public_ip" {
-  description = "Public IP / hostname for the Gateway API load balancer."
+  description = "Public hostname of the Envoy Gateway load balancer"
   value = coalesce(
-    data.kubernetes_service.envoy_gateway.status[0].load_balancer[0].ingress[0].ip,
-    data.kubernetes_service.envoy_gateway.status[0].load_balancer[0].ingress[0].hostname
+    try(local.envoy_service.status.loadBalancer.ingress[0].hostname, null),
+    try(local.envoy_service.status.loadBalancer.ingress[0].ip, null)
   )
 }

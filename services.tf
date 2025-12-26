@@ -21,10 +21,13 @@ data "kubernetes_service" "mariadb_primary" {
   }
   depends_on = [kubectl_manifest.mariadb_grant]
 }
-data "kubernetes_service" "envoy_gateway" {
-  metadata {
-    # TODO: Adjust if your Service has a different name.
-    name      = "envoy-gateway"
-    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
-  }
+data "kubernetes_resources" "envoy_lb_service" {
+  api_version = "v1"
+  kind        = "Service"
+  namespace   = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  label_selector = "app.kubernetes.io/component=proxy,app.kubernetes.io/managed-by=envoy-gateway"
+}
+
+locals {
+  envoy_service = one(data.kubernetes_resources.envoy_lb_service.objects)
 }
