@@ -5,6 +5,7 @@ resource "helm_release" "envoy_gateway" {
   repository = "oci://docker.io/envoyproxy"
   version    = var.envoy_gateway_helm_chart_version
   chart      = "gateway-helm"
+
 }
 
 resource "kubectl_manifest" "envoy_proxy" {
@@ -122,8 +123,8 @@ spec:
             type: PathPrefix
             value: "/"
       filters:
-        - type: HTTPRedirect
-          parameters:
+        - type: RequestRedirect
+          requestRedirect:
             scheme: https
 YAML
 }
