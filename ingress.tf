@@ -73,7 +73,7 @@ spec:
       # HTTP listener on port 80 is needed for ACME HTTP-01 challenges.
       allowedRoutes:
         namespaces:
-          from: All
+          from: Same
     - name: https
       hostname: ${var.public_hostname}
       port: ${var.https_port}
@@ -102,12 +102,8 @@ spec:
   parentRefs:
     - name: ${var.gateway_name}
       namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
-      sectionName: https    # attach to HTTPS listener for normal traffic
-    - name: ${var.gateway_name}
-      namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
-      sectionName: http     # attach to HTTP listener to handle redirects
+      sectionName: https
   rules:
-    # Rule for HTTPS listener: forward all paths to Drupal service
     - matches:
         - path:
             type: PathPrefix
@@ -116,15 +112,6 @@ spec:
         - name: ${var.kubernetes_drupal_service_name}
           port: ${var.http_port}
           kind: Service
-    # Rule for HTTP listener: match all and redirect to HTTPS
-    - matches:
-        - path:
-            type: PathPrefix
-            value: "/"
-      filters:
-        - type: RequestRedirect
-          requestRedirect:
-            scheme: https
 YAML
 }
 
@@ -145,6 +132,28 @@ spec:
 YAML
 }
 
+resource "kubectl_manifest" "https_redirect_route" {
+  depends_on = [kubectl_manifest.gateway]
+  yaml_body = <<YAML
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: https-redirect-route
+  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+spec:
+  parentRefs:
+    - name: ${var.gateway_name}
+      sectionName: http
+  hostnames: ["${var.public_hostname}"]
+  rules:
+    - filters:
+      - type: RequestRedirect
+        requestRedirect:
+          scheme: https
+          statusCode: 301
+YAML
+}
+
 # Admin access via VPN only.
 resource "kubectl_manifest" "drupal_admin_route" {
   depends_on = [kubectl_manifest.gateway]
@@ -155,7 +164,7 @@ metadata:
   name: drupal-admin
   namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
 spec:
-  hostnames: [ "${var.private_hostname}" ]
+  hostnames: ["${var.private_hostname}"]
   parentRefs:
     - name: ${var.gateway_name}
       namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
