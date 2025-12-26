@@ -127,6 +127,24 @@ spec:
             scheme: https
 YAML
 }
+
+resource "kubectl_manifest" "allow_proxy_protocol" {
+  depends_on = [kubectl_manifest.drupal_public_route]
+  yaml_body = <<YAML
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: allow-proxy-protocol
+  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: ${var.gateway_name}
+  enableProxyProtocol: true
+YAML
+}
+
 # Admin access via VPN only.
 resource "kubectl_manifest" "drupal_admin_route" {
   depends_on = [kubectl_manifest.gateway]
