@@ -192,7 +192,9 @@ resource "helm_release" "cert_manager" {
   version    = var.cert_manager_helm_chart_version
   depends_on = [helm_release.envoy_gateway]
   values = [yamlencode({
-    installCRDs =  true
+    crds = {
+      enabled = true
+    }
     config = {
       apiVersion = "controller.config.cert-manager.io/v1alpha1"
       kind = "ControllerConfiguration"
