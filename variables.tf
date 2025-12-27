@@ -295,3 +295,8 @@ variable "additional_internal_only_drupal_path" {
   type        = string
   default     = "/jsonapi"
 }
+variable "drupal_public_route_name" {
+  description = "The Kubernetes resource name of the public HTTPS route"
+  type = string
+  default = "drupal-public"
+}

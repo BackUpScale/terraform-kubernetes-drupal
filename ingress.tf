@@ -95,7 +95,7 @@ resource "kubectl_manifest" "drupal_public_route" {
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: drupal-public
+  name: ${var.drupal_public_route_name}
   namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
 spec:
   hostnames: [ "${var.public_hostname}" ]
@@ -154,6 +154,52 @@ spec:
 YAML
 }
 
+resource "kubectl_manifest" "public_route_deny_admin" {
+  depends_on = [kubectl_manifest.drupal_public_route]
+  yaml_body = <<YAML
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: deny-admin-paths-on-public
+  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: ${var.drupal_public_route_name}
+  authorization:
+    defaultAction: Allow
+    rules:
+      - action: Deny
+        principal:
+          clientCIDRs:
+            - "0.0.0.0/0"
+        when:
+          - request:
+              path:
+                type: PathPrefix
+                value: "/admin"
+      - action: Deny
+        principal:
+          clientCIDRs:
+            - "0.0.0.0/0"
+        when:
+          - request:
+              path:
+                type: RegularExpression
+                value: "^/(core/(install|authorize|rebuild)|update)\\.php$"
+      - action: Deny
+        principal:
+          clientCIDRs:
+            - "0.0.0.0/0"
+        when:
+          - request:
+              path:
+                type: PathPrefix
+                value: ${var.additional_internal_only_drupal_path}
+YAML
+}
+
 # Admin access via VPN only.
 resource "kubectl_manifest" "drupal_admin_route" {
   depends_on = [kubectl_manifest.gateway]
@@ -168,46 +214,16 @@ spec:
   parentRefs:
     - name: ${var.gateway_name}
       namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
-      # Explicitly bind to HTTP listener only because we're on the VPN.
       sectionName: http
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: "/admin"
-        - path:
-            type: RegularExpression
-            value: "^/(core/(install|authorize|rebuild)|update)\\.php$"
-        - path:
-            type: PathPrefix
-            value: ${var.additional_internal_only_drupal_path}
+            value: "/"
       backendRefs:
         - name: ${var.kubernetes_drupal_service_name}
           port: ${var.http_port}
           kind: Service
-YAML
-}
-
-resource "kubectl_manifest" "admin_ip_allow" {
-  depends_on = [kubectl_manifest.drupal_admin_route]
-  yaml_body = <<YAML
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: SecurityPolicy
-metadata:
-  name: admin-ip-allowlist
-  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
-spec:
-  targetRefs:
-  - group: gateway.networking.k8s.io
-    kind: HTTPRoute
-    name: drupal-admin
-  authorization:
-    defaultAction: Deny
-    rules:
-    - action: Allow
-      principal:
-        clientCIDRs:
-        - ${var.vpn_range}
 YAML
 }
 
