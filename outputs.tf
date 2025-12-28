@@ -9,10 +9,10 @@ output "service_cluster_ip" {
 }
 
 output "service_public_ip" {
-  description = "Public IP / hostname for the NGINX Ingress load balancer."
-  # some clouds return .ip, others .hostname (e.g. AWS ELB); take whichever is set
+  description = "Public hostname of the Envoy Gateway load balancer"
+  depends_on = [data.kubernetes_resources.envoy_lb_service]
   value = coalesce(
-    data.kubernetes_service.nginx_ingress.status[0].load_balancer[0].ingress[0].ip,
-    data.kubernetes_service.nginx_ingress.status[0].load_balancer[0].ingress[0].hostname
+    try(local.envoy_service.status.loadBalancer.ingress[0].hostname, null),
+    try(local.envoy_service.status.loadBalancer.ingress[0].ip, null)
   )
 }

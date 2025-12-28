@@ -20,7 +20,7 @@ This module does a lot.  Here's what it can do for you at a high level:
 * Sets up a MariaDB database
 * Sets up a Drupal deployment
 * Creates a persistent volume claim (PVC) for Drupal's file system
-* Uses Nginx Ingress for setting up the load balancer
+* Uses Envoy Gateway for setting up the load balancer
 * Automatically manages Let's Encrypt TLS certificates for HTTPS
 * Provides VPN-only access to Drupal's administration pages
 * Sets up a Kubernetes cron job to run Drupal's cron tasks

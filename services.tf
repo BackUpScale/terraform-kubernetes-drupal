@@ -14,7 +14,6 @@ resource "kubernetes_service" "drupal_service" {
     type = "ClusterIP"
   }
 }
-
 data "kubernetes_service" "mariadb_primary" {
   metadata {
     name      = "mariadb-primary"
@@ -22,10 +21,13 @@ data "kubernetes_service" "mariadb_primary" {
   }
   depends_on = [kubectl_manifest.mariadb_grant]
 }
+data "kubernetes_resources" "envoy_lb_service" {
+  api_version = "v1"
+  kind        = "Service"
+  namespace   = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  label_selector = "app.kubernetes.io/component=proxy,app.kubernetes.io/managed-by=envoy-gateway"
+}
 
-data "kubernetes_service" "nginx_ingress" {
-  metadata {
-    name      = "${helm_release.nginx_ingress.name}-ingress-nginx-controller"
-    namespace = helm_release.nginx_ingress.namespace
-  }
+locals {
+  envoy_service = one(data.kubernetes_resources.envoy_lb_service.objects)
 }

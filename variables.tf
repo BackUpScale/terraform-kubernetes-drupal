@@ -250,10 +250,14 @@ variable "cron_job_interval" {
   type        = number
   default     = 60
 }
-variable "nginx_ingress_helm_chart_version" {
-  description = "See https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx"
+variable "envoy_gateway_helm_chart_version" {
+  description = "See https://artifacthub.io/packages/helm/envoy-gateway/gateway-helm"
   type = string
-  default = "4.12.2"
+  default = "1.6.1"
+}
+variable "gateway_name" {
+  type = string
+  default = "drupal-gateway"
 }
 variable "cert_manager_helm_chart_version" {
   description = "See https://artifacthub.io/packages/helm/cert-manager/cert-manager"
@@ -285,4 +289,19 @@ variable "drupal_files_pv_dependency" {
   description = "A dependency required before the PVC gets set up. Using the ID of the k8s resource is simplest as long as it's the full path, which will create the dependency (e.g. an output from another module that's defined by `helm_release.longhorn.id`)."
   type        = string
   default     = null
+}
+variable "additional_internal_only_drupal_path" {
+  description = "Any additional Drupal site path that should only be accessible on the private network. If you'd like to disable this, set it to a path that you don't use on your site."
+  type        = string
+  default     = "/jsonapi"
+}
+variable "drupal_public_route_name" {
+  description = "The Kubernetes resource name of the public HTTPS route"
+  type = string
+  default = "drupal-public"
+}
+variable "drupal_public_admin_route_name_to_deny" {
+  description = "The Kubernetes resource name of the public HTTPS route with admin paths to block"
+  type = string
+  default = "drupal-public-admin-route-to-deny"
 }
