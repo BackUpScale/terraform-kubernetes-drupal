@@ -154,49 +154,53 @@ spec:
 YAML
 }
 
-resource "kubectl_manifest" "public_route_deny_admin" {
+resource "kubectl_manifest" "drupal_public_admin_route_to_deny" {
+  depends_on = [kubectl_manifest.gateway]
+  yaml_body = <<YAML
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ${var.drupal_public_admin_route_name_to_deny}
+  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+spec:
+  hostnames: [ "${var.public_hostname}" ]
+  parentRefs:
+    - name: ${var.gateway_name}
+      namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+      sectionName: https
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: "/admin"
+        - path:
+            type: RegularExpression
+            value: "^/(core/(install|authorize|rebuild)|update)\\.php$"
+        - path:
+            type: PathPrefix
+            value: ${var.additional_internal_only_drupal_path}
+      backendRefs:
+        - name: ${var.kubernetes_drupal_service_name}
+          port: ${var.http_port}
+          kind: Service
+YAML
+}
+
+resource "kubectl_manifest" "deny_drupal_public_admin_route" {
   depends_on = [kubectl_manifest.drupal_public_route]
   yaml_body = <<YAML
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
-  name: deny-admin-paths-on-public
+  name: deny-drupal-public-admin-route
   namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: ${var.drupal_public_route_name}
+      name: ${var.drupal_public_admin_route_name_to_deny}
   authorization:
-    defaultAction: Allow
-    rules:
-      - action: Deny
-        principal:
-          clientCIDRs:
-            - "0.0.0.0/0"
-        when:
-          - request:
-              path:
-                type: PathPrefix
-                value: "/admin"
-      - action: Deny
-        principal:
-          clientCIDRs:
-            - "0.0.0.0/0"
-        when:
-          - request:
-              path:
-                type: RegularExpression
-                value: "^/(core/(install|authorize|rebuild)|update)\\.php$"
-      - action: Deny
-        principal:
-          clientCIDRs:
-            - "0.0.0.0/0"
-        when:
-          - request:
-              path:
-                type: PathPrefix
-                value: ${var.additional_internal_only_drupal_path}
+    defaultAction: Deny
 YAML
 }
 

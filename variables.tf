@@ -300,3 +300,8 @@ variable "drupal_public_route_name" {
   type = string
   default = "drupal-public"
 }
+variable "drupal_public_admin_route_name_to_deny" {
+  description = "The Kubernetes resource name of the public HTTPS route with admin paths to block"
+  type = string
+  default = "drupal-public-admin-route-to-deny"
+}
