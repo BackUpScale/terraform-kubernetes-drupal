@@ -1,7 +1,7 @@
 resource "kubernetes_deployment" "drupal" {
   metadata {
     name      = "drupal"
-    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+    namespace = kubernetes_namespace.drupal_namespace.metadata[0].name
     labels = {
       app = "drupal"
     }

@@ -1,6 +1,6 @@
 resource "helm_release" "mariadb_operator_crds" {
   name             = "mariadb-operator-crds"
-  namespace        = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  namespace        = kubernetes_namespace.drupal_namespace.metadata[0].name
   create_namespace = false
   repository       = "https://helm.mariadb.com/mariadb-operator"
   chart            = "mariadb-operator-crds"
@@ -9,7 +9,7 @@ resource "helm_release" "mariadb_operator_crds" {
 
 resource "helm_release" "mariadb_operator" {
   name       = "mariadb-operator"
-  namespace  = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  namespace  = kubernetes_namespace.drupal_namespace.metadata[0].name
   repository = "https://helm.mariadb.com/mariadb-operator"
   chart      = "mariadb-operator"
   version    = var.mariadb_operator_chart_version
@@ -33,7 +33,7 @@ resource "kubectl_manifest" "mariadb_cluster" {
     kind: "MariaDB"
     metadata:
       name: "mariadb"
-      namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+      namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
     spec:
       rootPasswordSecretKeyRef:
         name: ${kubernetes_secret.drupal_secrets.metadata[0].name}
@@ -83,7 +83,7 @@ resource "kubectl_manifest" "mariadb_database" {
     kind: "Database"
     metadata:
       name: ${var.db_schema}
-      namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+      namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
     spec:
       name: ${var.db_schema}
       mariaDbRef:
@@ -100,7 +100,7 @@ resource "kubectl_manifest" "mariadb_user" {
     kind: "User"
     metadata:
       name: ${var.db_username}
-      namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+      namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
     spec:
       mariaDbRef:
         name: "mariadb"
@@ -120,7 +120,7 @@ resource "kubectl_manifest" "mariadb_grant" {
     kind: "Grant"
     metadata:
       name: "${var.db_username}-on-${var.db_schema}"
-      namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+      namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
     spec:
       mariaDbRef:
         name: "mariadb"

@@ -68,7 +68,7 @@ The [Provisioning Instructions](https://registry.terraform.io/modules/BackUpScal
 
 Here's an example of a minimal implementation.  There is more information on some of these below the module inclusion.
 
-For sensitive values (i.e. secrets), don't set these directly in your root variables file because you don't want them in your Git repository.  Instead, get them from [environment variables](https://developer.hashicorp.com/terraform/language/values/variables#environment-variables) (e.g. `TF_VAR_drupal_dashboard_root_password`).  You can set all of these by exporting your vault (e.g. [SOPS](https://getsops.io/) or [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html)) to your environment beforehand.
+For sensitive values (i.e. secrets), don't set these directly in your root variables file because you don't want them in your Git repository.  Instead, get them from [environment variables](https://developer.hashicorp.com/terraform/language/values/variables#environment-variables) (e.g. `TF_VAR_drupal_site_root_password`).  You can set all of these by exporting your vault (e.g. [SOPS](https://getsops.io/) or [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html)) to your environment beforehand.
 
 ### Module inclusion
 
@@ -86,8 +86,8 @@ module "drupal" {
   namespace = var.drupal_namespace
   container_registry_credentials = module.gitlab.rendered_container_registry_credentials
   cron_key = var.drupal_cron_key
-  db_admin_password = var.drupal_dashboard_root_password
-  db_password = var.drupal_dashboard_db_password
+  db_admin_password = var.drupal_site_root_password
+  db_password = var.drupal_site_db_password
   drupal_container_image_url = "registry.gitlab.com/myorg/infrastructure/drupal-${var.cloud_environment}:latest"
   firewall_id_annotation_value = civo_firewall.myfirewall.id
   hash_salt = var.drupal_hash_salt

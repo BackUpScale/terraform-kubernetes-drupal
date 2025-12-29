@@ -1,6 +1,6 @@
 output "namespace" {
   description = "The Kubernetes namespace used for the Drupal deployment"
-  value       = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  value       = kubernetes_namespace.drupal_namespace.metadata[0].name
 }
 
 output "service_cluster_ip" {

@@ -1,7 +1,7 @@
 resource "kubernetes_secret" "container_registry_secret" {
   metadata {
     name      = "gitlab-registry-secret"
-    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+    namespace = kubernetes_namespace.drupal_namespace.metadata[0].name
   }
   data = {
     ".dockerconfigjson" = var.container_registry_credentials
@@ -12,7 +12,7 @@ resource "kubernetes_secret" "container_registry_secret" {
 resource "kubernetes_secret" "drupal_secrets" {
   metadata {
     name      = var.drupal_secret_collection_name
-    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+    namespace = kubernetes_namespace.drupal_namespace.metadata[0].name
   }
   data = {
     MARIADB_ROOT_PASSWORD = var.db_admin_password
@@ -39,7 +39,7 @@ locals {
 resource "kubernetes_secret" "drupal_config_overrides" {
   metadata {
     name      = "drupal-config-overrides"
-    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+    namespace = kubernetes_namespace.drupal_namespace.metadata[0].name
   }
   data = local.sanitized_environment_variable_definitions
   type = "Opaque"

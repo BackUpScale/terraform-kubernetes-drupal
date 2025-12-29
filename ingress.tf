@@ -1,7 +1,7 @@
 # https://gateway.envoyproxy.io/latest/install/install-helm/
 resource "helm_release" "envoy_gateway" {
   name       = "envoy-gateway"
-  namespace  = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  namespace  = kubernetes_namespace.drupal_namespace.metadata[0].name
   repository = "oci://docker.io/envoyproxy"
   version    = var.envoy_gateway_helm_chart_version
   chart      = "gateway-helm"
@@ -15,7 +15,7 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
   name: envoy-proxy-config
-  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+  namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
   provider:
     type: Kubernetes
@@ -46,7 +46,7 @@ spec:
     group: gateway.envoyproxy.io
     kind: EnvoyProxy
     name: envoy-proxy-config
-    namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+    namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 YAML
 }
 
@@ -61,7 +61,7 @@ apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
   name: ${var.gateway_name}
-  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+  namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
   annotations:
     cert-manager.io/cluster-issuer: ${var.environment_is_production ? var.letsencrypt_production_environment_name : var.letsencrypt_staging_environment_name}
 spec:
@@ -96,12 +96,12 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: ${var.drupal_public_route_name}
-  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+  namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
   hostnames: [ "${var.public_hostname}" ]
   parentRefs:
     - name: ${var.gateway_name}
-      namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+      namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
       sectionName: https
   rules:
     - matches:
@@ -122,7 +122,7 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: ClientTrafficPolicy
 metadata:
   name: allow-proxy-protocol
-  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+  namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
   targetRefs:
   - group: gateway.networking.k8s.io
@@ -139,7 +139,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: https-redirect-route
-  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+  namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
   parentRefs:
     - name: ${var.gateway_name}
@@ -161,12 +161,12 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: ${var.drupal_public_admin_route_name_to_deny}
-  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+  namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
   hostnames: [ "${var.public_hostname}" ]
   parentRefs:
     - name: ${var.gateway_name}
-      namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+      namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
       sectionName: https
   rules:
     - matches:
@@ -193,7 +193,7 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: deny-drupal-public-admin-route
-  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+  namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
@@ -212,12 +212,12 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: drupal-admin
-  namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+  namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
   hostnames: ["${var.private_hostname}"]
   parentRefs:
     - name: ${var.gateway_name}
-      namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+      namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
       sectionName: http
   rules:
     - matches:
@@ -233,7 +233,7 @@ YAML
 
 resource "helm_release" "cert_manager" {
   name       = "cert-manager"
-  namespace  = kubernetes_namespace.drupal_dashboard.metadata[0].name
+  namespace  = kubernetes_namespace.drupal_namespace.metadata[0].name
   repository = "https://charts.jetstack.io"
   chart      = "cert-manager"
   version    = var.cert_manager_helm_chart_version
@@ -269,7 +269,7 @@ resource "kubectl_manifest" "lets_encrypt_staging" {
                 parentRefs:
                   - kind: Gateway
                     name: ${var.gateway_name}
-                    namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+                    namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 YAML
 }
 resource "kubectl_manifest" "lets_encrypt_production" {
@@ -291,6 +291,6 @@ resource "kubectl_manifest" "lets_encrypt_production" {
                 parentRefs:
                   - kind: Gateway
                     name: ${var.gateway_name}
-                    namespace: ${kubernetes_namespace.drupal_dashboard.metadata[0].name}
+                    namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 YAML
 }

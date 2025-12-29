@@ -1,7 +1,7 @@
 resource "kubernetes_config_map" "app_variables" {
   metadata {
     name      = "app-variables"
-    namespace = kubernetes_namespace.drupal_dashboard.metadata[0].name
+    namespace = kubernetes_namespace.drupal_namespace.metadata[0].name
   }
   data = {
     DATABASE_NAME = var.db_schema
