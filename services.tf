@@ -26,6 +26,7 @@ data "kubernetes_resources" "envoy_lb_service" {
   kind        = "Service"
   namespace   = kubernetes_namespace.drupal_namespace.metadata[0].name
   label_selector = "app.kubernetes.io/component=proxy,app.kubernetes.io/managed-by=envoy-gateway"
+  depends_on = [kubectl_manifest.gateway]
 }
 
 locals {
