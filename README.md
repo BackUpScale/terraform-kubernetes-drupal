@@ -132,7 +132,22 @@ data "template_file" "container_registry_credentials" {
 
 ### Importing a database
 
+For small dumps, you can stream the SQL straight into `drush sql:cli` over `kubectl exec`'s stdin:
+
 * `gunzip --stdout /tmp/drupal.sql.gz | kubectl --namespace=drupal exec -i service/drupal-service -- drush sql-cli`
+
+This is quick to type, but Drush warns against it for anything non-trivial because the same SPDY stream truncation issues that affect dumps (see [Dumping a database](#dumping-a-database)) also affect imports piped over stdin.  For larger dumps, copy the file into the pod first and then run the import locally to it:
+
+```bash
+# kubectl cp needs a pod name (not a service), so resolve one first.
+POD=$(kubectl --namespace=drupal get pod -l app=drupal -o name | head -n 1 | cut -d/ -f2)
+
+kubectl --namespace=drupal cp /tmp/drupal.sql.gz "$POD:/tmp/drupal.sql.gz"
+kubectl --namespace=drupal exec -i "$POD" -- sh -c \
+  'gunzip /tmp/drupal.sql.gz && drush sql:query --file=/tmp/drupal.sql && rm /tmp/drupal.sql'
+```
+
+Adjust the `-l app=drupal` label selector to match your deployment.
 
 ### Dumping a database
 
