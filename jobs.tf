@@ -21,8 +21,9 @@ resource "kubernetes_cron_job_v1" "drupal_cron" {
           metadata {}
           spec {
             container {
-              name  = "drupal-cron"
-              image = var.cron_curl_image
+              name              = "drupal-cron"
+              image             = var.cron_curl_image
+              image_pull_policy = "Always"
               env {
                 name = "CRON_KEY"
                 value_from {
