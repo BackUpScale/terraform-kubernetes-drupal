@@ -78,7 +78,7 @@ YAML
 
 resource "kubectl_manifest" "mariadb_database" {
   depends_on = [kubectl_manifest.mariadb_cluster]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
     apiVersion: "k8s.mariadb.com/v1alpha1"
     kind: "Database"
     metadata:
@@ -95,7 +95,7 @@ YAML
 
 resource "kubectl_manifest" "mariadb_user" {
   depends_on = [kubectl_manifest.mariadb_cluster]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
     apiVersion: "k8s.mariadb.com/v1alpha1"
     kind: "User"
     metadata:

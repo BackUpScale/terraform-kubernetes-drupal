@@ -4,7 +4,7 @@ resource "kubernetes_persistent_volume_claim" "drupal_files_pvc" {
     namespace = kubernetes_namespace.drupal_namespace.metadata[0].name
   }
   spec {
-    access_modes = [var.drupal_files_access_mode]
+    access_modes       = [var.drupal_files_access_mode]
     storage_class_name = var.drupal_files_storage_class
     resources {
       requests = {

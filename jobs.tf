@@ -5,10 +5,10 @@ resource "kubernetes_cron_job_v1" "drupal_cron" {
     namespace = kubernetes_namespace.drupal_namespace.metadata[0].name
   }
   spec {
-    schedule = "*/${var.cron_job_interval} * * * *"
-    concurrency_policy = "Forbid"
+    schedule                      = "*/${var.cron_job_interval} * * * *"
+    concurrency_policy            = "Forbid"
     successful_jobs_history_limit = 3
-    failed_jobs_history_limit = 1
+    failed_jobs_history_limit     = 1
     job_template {
       metadata {}
       spec {

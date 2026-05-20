@@ -31,8 +31,8 @@ resource "kubernetes_deployment" "drupal" {
         }
 
         container {
-          name  = "drupal"
-          image = var.drupal_container_image_url
+          name              = "drupal"
+          image             = var.drupal_container_image_url
           image_pull_policy = "Always"
           port {
             container_port = var.http_port

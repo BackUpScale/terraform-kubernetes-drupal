@@ -10,7 +10,7 @@ resource "helm_release" "envoy_gateway" {
 
 resource "kubectl_manifest" "envoy_proxy" {
   depends_on = [helm_release.envoy_gateway]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
@@ -35,7 +35,7 @@ YAML
 # GatewayClass referencing the EnvoyProxy config
 resource "kubectl_manifest" "gateway_class" {
   depends_on = [kubectl_manifest.envoy_proxy]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: GatewayClass
 metadata:
@@ -91,7 +91,7 @@ YAML
 
 resource "kubectl_manifest" "drupal_public_route" {
   depends_on = [kubectl_manifest.gateway]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -117,7 +117,7 @@ YAML
 
 resource "kubectl_manifest" "allow_proxy_protocol" {
   depends_on = [kubectl_manifest.drupal_public_route]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: ClientTrafficPolicy
 metadata:
@@ -134,7 +134,7 @@ YAML
 
 resource "kubectl_manifest" "https_redirect_route" {
   depends_on = [kubectl_manifest.gateway]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -156,7 +156,7 @@ YAML
 
 resource "kubectl_manifest" "drupal_public_admin_route_to_deny" {
   depends_on = [kubectl_manifest.gateway]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -188,7 +188,7 @@ YAML
 
 resource "kubectl_manifest" "deny_drupal_public_admin_route" {
   depends_on = [kubectl_manifest.drupal_public_route]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
@@ -207,7 +207,7 @@ YAML
 # Admin access via VPN only.
 resource "kubectl_manifest" "drupal_admin_route" {
   depends_on = [kubectl_manifest.gateway]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -243,8 +243,8 @@ resource "helm_release" "cert_manager" {
       enabled = true
     }
     config = {
-      apiVersion = "controller.config.cert-manager.io/v1alpha1"
-      kind = "ControllerConfiguration"
+      apiVersion       = "controller.config.cert-manager.io/v1alpha1"
+      kind             = "ControllerConfiguration"
       enableGatewayAPI = true
     }
   })]
@@ -252,7 +252,7 @@ resource "helm_release" "cert_manager" {
 
 resource "kubectl_manifest" "lets_encrypt_staging" {
   depends_on = [helm_release.cert_manager]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
     apiVersion: cert-manager.io/v1
     kind: ClusterIssuer
     metadata:
@@ -274,7 +274,7 @@ YAML
 }
 resource "kubectl_manifest" "lets_encrypt_production" {
   depends_on = [helm_release.cert_manager]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
     apiVersion: cert-manager.io/v1
     kind: ClusterIssuer
     metadata:
