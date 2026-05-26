@@ -195,6 +195,16 @@ variable "drupal_replicas" {
   type        = number
   default     = 2
 }
+variable "drupal_max_surge" {
+  description = "Rolling-update maxSurge for the Drupal Deployment. Integer or percentage string (e.g. \"1\" or \"25%\")."
+  type        = string
+  default     = "1"
+}
+variable "drupal_max_unavailable" {
+  description = "Rolling-update maxUnavailable for the Drupal Deployment. Integer or percentage string (e.g. \"0\" or \"25%\")."
+  type        = string
+  default     = "0"
+}
 variable "drupal_cpu_request" {
   description = "The minimum CPU requested by each of the Drupal pods."
   type        = string

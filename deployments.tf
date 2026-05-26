@@ -9,6 +9,14 @@ resource "kubernetes_deployment" "drupal" {
   spec {
     replicas = var.drupal_replicas
 
+    strategy {
+      type = "RollingUpdate"
+      rolling_update {
+        max_surge       = var.drupal_max_surge
+        max_unavailable = var.drupal_max_unavailable
+      }
+    }
+
     selector {
       match_labels = {
         app = "drupal"
