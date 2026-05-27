@@ -60,6 +60,25 @@ resource "kubernetes_deployment" "drupal" {
             }
           }
 
+          startup_probe {
+            http_get {
+              path = var.drupal_readiness_probe_path
+              port = var.http_port
+            }
+            period_seconds    = var.drupal_startup_probe_period_seconds
+            failure_threshold = var.drupal_startup_probe_failure_threshold
+          }
+          readiness_probe {
+            http_get {
+              path = var.drupal_readiness_probe_path
+              port = var.http_port
+            }
+            initial_delay_seconds = var.drupal_readiness_probe_initial_delay_seconds
+            period_seconds        = var.drupal_readiness_probe_period_seconds
+            timeout_seconds       = var.drupal_readiness_probe_timeout_seconds
+            failure_threshold     = var.drupal_readiness_probe_failure_threshold
+          }
+
           env {
             name = "DB_NAME"
             value_from {

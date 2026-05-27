@@ -205,6 +205,41 @@ variable "drupal_max_unavailable" {
   type        = string
   default     = "0"
 }
+variable "drupal_readiness_probe_path" {
+  description = "HTTP path the Drupal readiness and startup probes hit. Should return 200 once the app can actually serve traffic. Pick a DB-touching, uncached path if you want the probe to also verify DB connectivity."
+  type        = string
+  default     = "/"
+}
+variable "drupal_readiness_probe_initial_delay_seconds" {
+  description = "Seconds to wait after the container starts before the first readiness probe."
+  type        = number
+  default     = 5
+}
+variable "drupal_readiness_probe_period_seconds" {
+  description = "How often (in seconds) to run the readiness probe."
+  type        = number
+  default     = 5
+}
+variable "drupal_readiness_probe_timeout_seconds" {
+  description = "Seconds before a readiness probe attempt times out."
+  type        = number
+  default     = 3
+}
+variable "drupal_readiness_probe_failure_threshold" {
+  description = "Number of consecutive readiness failures before the pod is marked NotReady."
+  type        = number
+  default     = 3
+}
+variable "drupal_startup_probe_period_seconds" {
+  description = "How often (in seconds) to run the startup probe. Multiplied by drupal_startup_probe_failure_threshold gives the maximum boot window."
+  type        = number
+  default     = 5
+}
+variable "drupal_startup_probe_failure_threshold" {
+  description = "Max consecutive startup probe failures before the pod is killed. Default of 24 * 5s period = 2 minutes to boot."
+  type        = number
+  default     = 24
+}
 variable "drupal_cpu_request" {
   description = "The minimum CPU requested by each of the Drupal pods."
   type        = string
