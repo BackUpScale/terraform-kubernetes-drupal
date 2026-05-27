@@ -64,6 +64,13 @@ resource "kubernetes_deployment" "drupal" {
             http_get {
               path = var.drupal_readiness_probe_path
               port = var.http_port
+              # Drupal rejects requests whose Host header isn't in
+              # trusted_host_patterns (HTTP 400), so send public_hostname
+              # — which is already one of the trusted patterns.
+              http_header {
+                name  = "Host"
+                value = var.public_hostname
+              }
             }
             period_seconds    = var.drupal_startup_probe_period_seconds
             failure_threshold = var.drupal_startup_probe_failure_threshold
@@ -72,6 +79,10 @@ resource "kubernetes_deployment" "drupal" {
             http_get {
               path = var.drupal_readiness_probe_path
               port = var.http_port
+              http_header {
+                name  = "Host"
+                value = var.public_hostname
+              }
             }
             initial_delay_seconds = var.drupal_readiness_probe_initial_delay_seconds
             period_seconds        = var.drupal_readiness_probe_period_seconds
