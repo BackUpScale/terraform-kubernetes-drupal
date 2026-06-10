@@ -335,10 +335,18 @@ variable "drupal_files_pv_dependency" {
   type        = string
   default     = null
 }
-variable "additional_internal_only_drupal_path" {
-  description = "Any additional Drupal site path that should only be accessible on the private network. If you'd like to disable this, set it to a path that you don't use on your site."
-  type        = string
-  default     = "/jsonapi"
+variable "additional_internal_only_drupal_paths" {
+  description = "Additional Drupal site paths that should only be accessible on the private network, on top of the always-blocked /admin and installer scripts. Each entry is a Gateway API path match: type is \"PathPrefix\", \"Exact\" or \"RegularExpression\" (RE2, matched against the full request path), e.g. { type = \"RegularExpression\", value = \"^/user/[0-9]+/cancel.*$\" } to keep account-cancellation pages off the public site. Set to [] to disable. (Replaces the former additional_internal_only_drupal_path string variable.)"
+  type = list(object({
+    type  = string
+    value = string
+  }))
+  default = [
+    {
+      type  = "PathPrefix"
+      value = "/jsonapi"
+    },
+  ]
 }
 variable "drupal_public_route_name" {
   description = "The Kubernetes resource name of the public HTTPS route"

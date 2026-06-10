@@ -176,9 +176,11 @@ spec:
         - path:
             type: RegularExpression
             value: "^/(core/(install|authorize|rebuild)|update)\\.php$"
+%{~for match in var.additional_internal_only_drupal_paths}
         - path:
-            type: PathPrefix
-            value: ${var.additional_internal_only_drupal_path}
+            type: ${match.type}
+            value: "${match.value}"
+%{~endfor}
       backendRefs:
         - name: ${var.kubernetes_drupal_service_name}
           port: ${var.http_port}
