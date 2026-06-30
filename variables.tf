@@ -190,6 +190,11 @@ variable "mariadb_number_of_replicas" {
   type        = number
   default     = 3
 }
+variable "mariadb_auto_failover_delay" {
+  description = "How long the operator waits before promoting a new primary after a primary liveness failure. A non-zero value lets a transient blip recover before a failover, which would otherwise strand the primary's last un-replicated commit and crash-loop it under GTID strict mode."
+  type        = string
+  default     = "30s"
+}
 variable "drupal_replicas" {
   description = "Number of Drupal pod replicas"
   type        = number

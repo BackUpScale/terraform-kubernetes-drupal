@@ -44,6 +44,11 @@ resource "kubectl_manifest" "mariadb_cluster" {
       replicas: ${var.mariadb_number_of_replicas}
       replication:
         enabled: true
+        primary:
+          # Delay failover so a transient liveness blip on the primary doesn't
+          # promote a new one and strand an un-replicated commit on the old one
+          # (which then can't rejoin under gtidStrictMode and crash-loops).
+          autoFailoverDelay: ${var.mariadb_auto_failover_delay}
       primaryService:
         type: "ClusterIP"
       secondaryService:
