@@ -195,6 +195,11 @@ variable "mariadb_auto_failover_delay" {
   type        = string
   default     = "30s"
 }
+variable "mariadb_replica_bootstrap_name" {
+  description = "Name of the PhysicalBackup template the operator uses to seed and recover replicas. Referenced by both the PhysicalBackup object and the MariaDB CR's spec.replication.replica.bootstrapFrom."
+  type        = string
+  default     = "mariadb-replica-bootstrap"
+}
 variable "drupal_replicas" {
   description = "Number of Drupal pod replicas"
   type        = number
