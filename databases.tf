@@ -49,6 +49,16 @@ resource "kubectl_manifest" "mariadb_cluster" {
           # promote a new one and strand an un-replicated commit on the old one
           # (which then can't rejoin under gtidStrictMode and crash-loops).
           autoFailoverDelay: ${var.mariadb_auto_failover_delay}
+        replica:
+          # Seed and recover replicas from a fresh mariabackup of an up-to-date
+          # node; without this the operator replicates from scratch, which can't
+          # work once the primary's binlog is purged. recovery auto-rebuilds a
+          # faulty replica from bootstrapFrom.
+          bootstrapFrom:
+            physicalBackupTemplateRef:
+              name: ${var.mariadb_replica_bootstrap_name}
+          recovery:
+            enabled: true
       primaryService:
         type: "ClusterIP"
       secondaryService:
@@ -78,6 +88,36 @@ resource "kubectl_manifest" "mariadb_cluster" {
           limits:
             cpu: ${var.mariadb_metrics_cpu_limit}
             memory: ${var.mariadb_metrics_memory_limit}
+YAML
+}
+
+# Non-running template (schedule suspended) the operator instantiates on demand
+# to seed/recover replicas (spec.replication.replica.bootstrapFrom). Each
+# recovery/scale-out spins up a transient backup PVC the operator does not
+# reclaim -- prune the leftover *-pb-recovery PVC afterwards. Upstream:
+# https://github.com/mariadb-operator/mariadb-operator/issues/1818
+resource "kubectl_manifest" "mariadb_physicalbackup_template" {
+  depends_on = [kubectl_manifest.mariadb_cluster]
+  yaml_body  = <<YAML
+    apiVersion: "k8s.mariadb.com/v1alpha1"
+    kind: "PhysicalBackup"
+    metadata:
+      name: ${var.mariadb_replica_bootstrap_name}
+      namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
+    spec:
+      mariaDbRef:
+        name: "mariadb"
+      schedule:
+        cron: "0 0 1 1 *"
+        suspend: true
+      storage:
+        persistentVolumeClaim:
+          accessModes:
+            - "ReadWriteOnce"
+          storageClassName: ${var.db_storage_class}
+          resources:
+            requests:
+              storage: ${var.drupal_db_storage_size}
 YAML
 }
 
