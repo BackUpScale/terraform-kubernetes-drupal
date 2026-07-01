@@ -92,8 +92,10 @@ YAML
 }
 
 # Non-running template (schedule suspended) the operator instantiates on demand
-# to seed/recover replicas (spec.replication.replica.bootstrapFrom). The backup
-# is transient -- created during a recovery/scale-out and cleaned up after.
+# to seed/recover replicas (spec.replication.replica.bootstrapFrom). Each
+# recovery/scale-out spins up a transient backup PVC the operator does not
+# reclaim -- prune the leftover *-pb-recovery PVC afterwards. Upstream:
+# https://github.com/mariadb-operator/mariadb-operator/issues/1818
 resource "kubectl_manifest" "mariadb_physicalbackup_template" {
   depends_on = [kubectl_manifest.mariadb_cluster]
   yaml_body  = <<YAML
