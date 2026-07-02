@@ -116,9 +116,9 @@ variable "drupal_files_pvc_name" {
   default     = "drupal-files-pvc"
 }
 variable "mariadb_operator_chart_version" {
-  description = "The Helm chart version for the MariaDB operator. See https://artifacthub.io/packages/helm/mariadb-operator/mariadb-operator"
+  description = "The Helm chart version for the MariaDB operator. Minimum 25.10.x: the CR manifest targets the current CRD schema (serviceMonitor object, metrics.exporter.resources) and replication features (bootstrapFrom/recovery); older operators reject the apply. See https://artifacthub.io/packages/helm/mariadb-operator/mariadb-operator"
   type        = string
-  default     = "25.8.3"
+  default     = "25.10.4"
 }
 variable "mariadb_cpu_request" {
   description = "The minimum CPU requested by MariaDB pods."
