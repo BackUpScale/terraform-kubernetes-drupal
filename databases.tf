@@ -24,6 +24,12 @@ resource "helm_release" "mariadb_operator" {
 }
 
 resource "kubectl_manifest" "mariadb_cluster" {
+  # Server-side apply: manage only the fields declared here, so operator-defaulted
+  # immutable fields (rootEmptyPassword, storage.ephemeral, metrics.username) aren't
+  # nulled on apply. force_conflicts claims fields previously set via client-side
+  # apply or manual kubectl patches.
+  server_side_apply = true
+  force_conflicts   = true
   depends_on = [
     helm_release.mariadb_operator_crds,
     helm_release.mariadb_operator
@@ -76,18 +82,15 @@ resource "kubectl_manifest" "mariadb_cluster" {
       # Enable DB metrics (mysqld-exporter + ServiceMonitor)
       metrics:
         enabled: true
-        serviceMonitor:
-          enabled: true
-          # optionally add labels/selectors to match your Prometheus Operator
-          # additionalLabels:
-          #   release: "prometheus"
-        resources:
-          requests:
-            cpu: ${var.mariadb_metrics_cpu_request}
-            memory: ${var.mariadb_metrics_memory_request}
-          limits:
-            cpu: ${var.mariadb_metrics_cpu_limit}
-            memory: ${var.mariadb_metrics_memory_limit}
+        serviceMonitor: {}
+        exporter:
+          resources:
+            requests:
+              cpu: ${var.mariadb_metrics_cpu_request}
+              memory: ${var.mariadb_metrics_memory_request}
+            limits:
+              cpu: ${var.mariadb_metrics_cpu_limit}
+              memory: ${var.mariadb_metrics_memory_limit}
 YAML
 }
 
