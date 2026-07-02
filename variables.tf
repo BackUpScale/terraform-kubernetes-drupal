@@ -200,6 +200,11 @@ variable "mariadb_replica_bootstrap_name" {
   type        = string
   default     = "mariadb-replica-bootstrap"
 }
+variable "mariadb_physicalbackup_source" {
+  description = "Which node the operator takes the replica recovery/scale-out backup from (maps to the PhysicalBackup's spec.target). 'Replica' (operator default) uses only a ready replica and stalls if all replicas are down; 'PreferReplica' prefers a ready replica but falls back to the primary, so recovery self-heals even when every replica is down. Requires operator >= 25.10.3."
+  type        = string
+  default     = "PreferReplica"
+}
 variable "drupal_replicas" {
   description = "Number of Drupal pod replicas"
   type        = number

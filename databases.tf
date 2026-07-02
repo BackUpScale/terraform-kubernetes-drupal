@@ -100,8 +100,12 @@ YAML
 # reclaim -- prune the leftover *-pb-recovery PVC afterwards. Upstream:
 # https://github.com/mariadb-operator/mariadb-operator/issues/1818
 resource "kubectl_manifest" "mariadb_physicalbackup_template" {
-  depends_on = [kubectl_manifest.mariadb_cluster]
-  yaml_body  = <<YAML
+  # Server-side apply so Terraform manages only the declared fields and doesn't
+  # fight the operator's defaults on this template (matches mariadb_cluster).
+  server_side_apply = true
+  force_conflicts   = true
+  depends_on        = [kubectl_manifest.mariadb_cluster]
+  yaml_body         = <<YAML
     apiVersion: "k8s.mariadb.com/v1alpha1"
     kind: "PhysicalBackup"
     metadata:
@@ -110,6 +114,10 @@ resource "kubectl_manifest" "mariadb_physicalbackup_template" {
     spec:
       mariaDbRef:
         name: "mariadb"
+      # Node the recovery/scale-out backup is taken from: prefer a ready replica,
+      # but fall back to the primary when none is ready so recovery proceeds even
+      # when all replicas are down.
+      target: ${var.mariadb_physicalbackup_source}
       schedule:
         cron: "0 0 1 1 *"
         suspend: true
