@@ -23,8 +23,14 @@ $databases['default']['default'] = [
   'prefix'   => '',
 ];
 
-// Set the Drupal hash salt from an environment variable.
-$settings['hash_salt'] = getenv('DRUPAL_HASH_SALT') ?: 'CHANGE_ME';
+// Set the Drupal hash salt from an environment variable. Fail closed: with a
+// predictable salt, session and one-time-login tokens are forgeable.
+$hash_salt = getenv('DRUPAL_HASH_SALT');
+if (!$hash_salt) {
+  http_response_code(500);
+  exit('DRUPAL_HASH_SALT is not set.');
+}
+$settings['hash_salt'] = $hash_salt;
 
 /**
  * Trusted Host Patterns from environment variable
@@ -33,14 +39,11 @@ $settings['hash_salt'] = getenv('DRUPAL_HASH_SALT') ?: 'CHANGE_ME';
  * "^example\.com$,^.+\.example\.com$"
  */
 $trusted_hosts_env = getenv('TRUSTED_HOST_PATTERNS');
-if ($trusted_hosts_env) {
-  $settings['trusted_host_patterns'] = array_map('trim', explode(',', $trusted_hosts_env));
-} else {
-  $settings['trusted_host_patterns'] = [
-    '^example\.com$',
-    '^.+\.example\.com$',
-  ];
+if (!$trusted_hosts_env) {
+  http_response_code(500);
+  exit('TRUSTED_HOST_PATTERNS is not set.');
 }
+$settings['trusted_host_patterns'] = array_map('trim', explode(',', $trusted_hosts_env));
 
 /**
  * Reverse Proxy Settings from environment variables
