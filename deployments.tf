@@ -34,6 +34,12 @@ resource "kubernetes_deployment" "drupal" {
         }
       }
       spec {
+        automount_service_account_token = var.drupal_automount_kubernetes_service_account_token
+        security_context {
+          seccomp_profile {
+            type = var.drupal_seccomp_profile_type
+          }
+        }
         image_pull_secrets {
           name = kubernetes_secret.container_registry_secret.metadata[0].name
         }
@@ -42,6 +48,16 @@ resource "kubernetes_deployment" "drupal" {
           name              = "drupal"
           image             = var.drupal_container_image_url
           image_pull_policy = "Always"
+          # Confine any code execution in the internet-facing container: no
+          # privilege gain via setuid binaries, and only the capabilities the
+          # image's root-owned service masters need.
+          security_context {
+            allow_privilege_escalation = false
+            capabilities {
+              drop = ["ALL"]
+              add  = var.drupal_container_capabilities
+            }
+          }
           port {
             container_port = var.http_port
           }

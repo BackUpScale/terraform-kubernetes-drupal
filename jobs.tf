@@ -20,10 +20,28 @@ resource "kubernetes_cron_job_v1" "drupal_cron" {
         template {
           metadata {}
           spec {
+            automount_service_account_token = var.drupal_automount_kubernetes_service_account_token
+            security_context {
+              seccomp_profile {
+                type = var.drupal_seccomp_profile_type
+              }
+            }
             container {
               name              = "drupal-cron"
               image             = var.cron_curl_image
               image_pull_policy = "Always"
+              # The container only runs curl, so it needs no privileges at
+              # all. The explicit UID is required because the image declares
+              # no USER, which runAsNonRoot would otherwise reject.
+              security_context {
+                allow_privilege_escalation = false
+                run_as_non_root            = true
+                run_as_user                = 65534
+                run_as_group               = 65534
+                capabilities {
+                  drop = ["ALL"]
+                }
+              }
               env {
                 name = "CRON_KEY"
                 value_from {

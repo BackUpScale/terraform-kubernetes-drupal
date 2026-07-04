@@ -305,6 +305,21 @@ variable "cron_curl_image" {
   type        = string
   default     = "byrnedo/alpine-curl:3.19"
 }
+variable "drupal_automount_kubernetes_service_account_token" {
+  description = "Whether to mount a Kubernetes API token into the Drupal pods. Drupal itself never calls the Kubernetes API, so the default removes the token to keep a compromised pod from holding a cluster identity; enable only if your Drupal genuinely talks to the API."
+  type        = bool
+  default     = false
+}
+variable "drupal_container_capabilities" {
+  description = "Linux capabilities retained by the Drupal container after dropping ALL. The default is the minimal set the webdevops/php-nginx image needs: its root-owned supervisor/nginx/php-fpm masters spawn workers as unprivileged users (SETUID, SETGID), manage file ownership at init (CHOWN, DAC_OVERRIDE, FOWNER), bind port 80 (NET_BIND_SERVICE), and signal children (KILL). Adjust for other images."
+  type        = list(string)
+  default     = ["CHOWN", "DAC_OVERRIDE", "FOWNER", "KILL", "SETGID", "SETUID", "NET_BIND_SERVICE"]
+}
+variable "drupal_seccomp_profile_type" {
+  description = "Seccomp profile applied to the Drupal and cron pods. Set to 'Unconfined' only to diagnose obscure permission errors or for images needing syscalls the runtime's default profile blocks."
+  type        = string
+  default     = "RuntimeDefault"
+}
 variable "cron_job_interval" {
   description = "Every number of minutes that cron will run"
   type        = number
