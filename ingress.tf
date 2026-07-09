@@ -154,19 +154,6 @@ spec:
 YAML
 }
 
-# Coarse network-layer deny of Drupal's unambiguous admin surface: /admin, the
-# installer scripts, and — via additional_internal_only_drupal_paths — any other
-# paths the site marks internal-only (e.g. /jsonapi). This deliberately stays
-# coarse: on a content-driven Drupal site admin-vs-customer is a *permission*
-# distinction, not a path one (e.g. /node/N/edit depends on the viewer's role and
-# node ownership), so Drupal's access layer is the primary boundary. Fine-grained,
-# self-maintaining admin lockout belongs in the Drupal application — e.g. an event
-# subscriber that 403s _admin_route requests arriving on any host other than the
-# private admin hostname (exposed to the app as DRUPAL_ADMIN_HOSTNAME).
-#
-# Do NOT add customer-facing or callback paths here — in particular payment-
-# provider webhooks and checkout pages must stay publicly reachable, or inbound
-# events would be silently dropped.
 resource "kubectl_manifest" "drupal_public_admin_route_to_deny" {
   depends_on = [kubectl_manifest.gateway]
   yaml_body  = <<YAML

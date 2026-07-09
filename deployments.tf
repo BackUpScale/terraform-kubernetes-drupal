@@ -178,15 +178,6 @@ resource "kubernetes_deployment" "drupal" {
               }
             }
           }
-          env {
-            name = "DRUPAL_ADMIN_HOSTNAME"
-            value_from {
-              config_map_key_ref {
-                name = kubernetes_config_map.app_variables.metadata[0].name
-                key  = "DRUPAL_ADMIN_HOSTNAME"
-              }
-            }
-          }
           env_from {
             secret_ref {
               name = kubernetes_secret.drupal_config_overrides.metadata[0].name
