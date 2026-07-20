@@ -1,6 +1,7 @@
 resource "kubernetes_namespace" "drupal_namespace" {
   metadata {
-    name = var.namespace
+    name   = var.namespace
+    labels = var.namespace_labels
   }
   depends_on = [var.cluster_terraform_id]
 }

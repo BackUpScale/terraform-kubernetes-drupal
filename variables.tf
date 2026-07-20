@@ -28,6 +28,15 @@ variable "namespace" {
   description = "The name of the namespace where Drupal resources will get provisioned."
   type        = string
 }
+variable "namespace_labels" {
+  description = "Labels applied to the Drupal namespace. The default enforces the 'baseline' Pod Security Standard and warns/audits at 'restricted' -- every pod this module creates satisfies 'baseline'. Set to {} to opt out, or supply your own labels, e.g. if you run additional privileged workloads in this namespace."
+  type        = map(string)
+  default = {
+    "pod-security.kubernetes.io/enforce" = "baseline"
+    "pod-security.kubernetes.io/warn"    = "restricted"
+    "pod-security.kubernetes.io/audit"   = "restricted"
+  }
+}
 variable "container_registry_credentials" {
   description = "The credentials used to access the container registry. See README for details."
 }
