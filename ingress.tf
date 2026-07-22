@@ -87,6 +87,23 @@ spec:
           - kind: Secret
             name: drupal-tls
 YAML
+  # Block until the gateway is programmed and its load-balancer address is
+  # assigned. Envoy Gateway copies the LB Service's address into
+  # status.addresses once the cloud controller provisions it, so without this
+  # barrier a first apply reads the proxy Service too early and the
+  # service_public_ip output (and the DNS record consuming it) fails until a
+  # second apply.
+  wait_for {
+    condition {
+      type   = "Programmed"
+      status = "True"
+    }
+    field {
+      key        = "status.addresses.[0].value"
+      value      = ".+"
+      value_type = "regex"
+    }
+  }
 }
 
 resource "kubectl_manifest" "drupal_public_route" {
