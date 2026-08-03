@@ -86,6 +86,17 @@ spec:
         certificateRefs:
           - kind: Secret
             name: drupal-tls
+%{~ for extra in var.extra_public_hostnames }
+    - name: ${extra.listener_name}
+      hostname: ${extra.hostname}
+      port: ${var.https_port}
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: ${extra.tls_secret_name}
+%{~ endfor }
 YAML
   # Block until the gateway is programmed and its load-balancer address is
   # assigned. Envoy Gateway copies the LB Service's address into
@@ -115,11 +126,15 @@ metadata:
   name: ${var.drupal_public_route_name}
   namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
-  hostnames: [ "${var.public_hostname}" ]
+  hostnames: [ "${var.public_hostname}"%{ for extra in var.extra_public_hostnames }, "${extra.hostname}"%{ endfor } ]
   parentRefs:
     - name: ${var.gateway_name}
       namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
       sectionName: https
+%{~ for extra in var.extra_public_hostnames }
+    - name: ${var.gateway_name}
+      sectionName: ${extra.listener_name}
+%{~ endfor }
   rules:
     - matches:
         - path:
@@ -161,7 +176,7 @@ spec:
   parentRefs:
     - name: ${var.gateway_name}
       sectionName: http
-  hostnames: ["${var.public_hostname}"]
+  hostnames: ["${var.public_hostname}"%{ for extra in var.extra_public_hostnames }, "${extra.hostname}"%{ endfor }]
   rules:
     - filters:
       - type: RequestRedirect
@@ -180,11 +195,15 @@ metadata:
   name: ${var.drupal_public_admin_route_name_to_deny}
   namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
-  hostnames: [ "${var.public_hostname}" ]
+  hostnames: [ "${var.public_hostname}"%{ for extra in var.extra_public_hostnames }, "${extra.hostname}"%{ endfor } ]
   parentRefs:
     - name: ${var.gateway_name}
       namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
       sectionName: https
+%{~ for extra in var.extra_public_hostnames }
+    - name: ${var.gateway_name}
+      sectionName: ${extra.listener_name}
+%{~ endfor }
   rules:
     - matches:
         - path:

@@ -397,3 +397,13 @@ variable "drupal_public_admin_route_name_to_deny" {
   type        = string
   default     = "drupal-public-admin-route-to-deny"
 }
+
+variable "extra_public_hostnames" {
+  description = "Additional public hostnames the gateway serves alongside public_hostname, each on its own HTTPS listener with its own TLS secret (e.g. the previous production domain during a cutover transition). The listener's allowedRoutes is left unset (cluster default: same namespace)."
+  type = list(object({
+    listener_name   = string
+    hostname        = string
+    tls_secret_name = string
+  }))
+  default = []
+}
