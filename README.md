@@ -143,11 +143,22 @@ This is quick to type, but Drush warns against it for anything non-trivial becau
 POD=$(kubectl --namespace=drupal get pod -l app=drupal -o name | head -n 1 | cut -d/ -f2)
 
 kubectl --namespace=drupal cp /tmp/drupal.sql.gz "$POD:/tmp/drupal.sql.gz"
+
+# `kubectl cp` uses the same stream as `kubectl exec`, so the copy can be
+# truncated too -- and a truncated dump imports without complaint. Compare
+# checksums before importing anything.
+sha256sum /tmp/drupal.sql.gz
+kubectl --namespace=drupal exec -i "$POD" -- sha256sum /tmp/drupal.sql.gz
+
 kubectl --namespace=drupal exec -i "$POD" -- sh -c \
   'gunzip /tmp/drupal.sql.gz && drush sql:query --file=/tmp/drupal.sql && rm /tmp/drupal.sql'
 ```
 
 Adjust the `-l app=drupal` label selector to match your deployment.
+
+Afterwards, rebuild the caches (`drush cache:rebuild`) and check that the
+imported site holds what you expect — a row count or two against a table you
+know the size of is enough to catch a partial import.
 
 ### Dumping a database
 
@@ -158,6 +169,18 @@ Normally, one would expect to be able to do something like this:
 It will create a valid dump inside the pod, but all of the bytes probably won't make it back to your workstation, which will produce a dump file that can't be imported. The culprit is almost always the way `kubectl exec` streams large amounts to `stdout`: the SPDY stream can be interrupted, silently truncated, or timed-out long before the database dump is finished, so the file you redirect locally stops in the middle without any error message. This is [a known issue in Kubernetes](https://github.com/kubernetes/kubernetes/issues/124571).  It should work better with Kubernetes clusters ≥ v1.31, which defaults to WebSocket streaming (which has fewer truncation bugs﻿).
 
 In any case, a better option is to download one of your backups, and use that instead.  Besides avoiding the above issue, this process also forces you to test your backups, which is always a good idea.  For more information on backups, see [the section here](#backups).
+
+If you must dump from a running pod, write the dump to a file inside the pod and copy it out, rather than redirecting a stream — then verify it arrived whole:
+
+```bash
+POD=$(kubectl --namespace=drupal get pod -l app=drupal -o name | head -n 1 | cut -d/ -f2)
+
+kubectl --namespace=drupal exec -i "$POD" -- sh -c \
+  'drush sql:dump --result-file=/tmp/drupal.sql && gzip -f /tmp/drupal.sql'
+kubectl --namespace=drupal exec -i "$POD" -- sha256sum /tmp/drupal.sql.gz
+kubectl --namespace=drupal cp "$POD:/tmp/drupal.sql.gz" /tmp/drupal.sql.gz
+sha256sum /tmp/drupal.sql.gz
+```
 
 ### Running non-interactive Drush commands
 
