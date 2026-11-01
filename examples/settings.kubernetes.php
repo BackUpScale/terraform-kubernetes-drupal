@@ -58,6 +58,23 @@ if ($reverse_proxy_addresses_env) {
   $settings['reverse_proxy_addresses'] = [];
 }
 
+/**
+ * @todo Work around the compiled-container race during rolling updates.
+ *
+ * All pods share one database, and the compiled service container is cached
+ * in the cache_container table. When an update that changes service
+ * definitions rolls out, a pod running the old code can recompile and write
+ * a container that the new pods then load, fataling with a class-not-found
+ * error on every request and crash-looping until the cache is cleared. A
+ * possible fix is pinning the container cache to a per-pod backend:
+ * @code
+ * $settings['cache']['bins']['container'] = 'cache.backend.apcu';
+ * @endcode
+ * but APCu is typically disabled for CLI, so verify Drush still works before
+ * adopting it. Recovery without the fix: scale the Drupal deployment to 0,
+ * run `DELETE FROM cache_container;` on the database, then scale back up.
+ */
+
 // Prepare configuration overrides for import.  Environment variables can't have underscores or colons so these must be
 // converted back into Platform.sh's format (https://docs.platform.sh/development/variables.html#implementation-example).
 $config_overrides = [];
