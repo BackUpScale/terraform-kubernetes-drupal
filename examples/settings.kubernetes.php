@@ -57,6 +57,15 @@ if ($reverse_proxy_addresses_env) {
   // You might provide defaults or leave empty.
   $settings['reverse_proxy_addresses'] = [];
 }
+// Trust only the X-Forwarded-* headers the gateway manages. Core's fallback
+// also trusts RFC 7239 "Forwarded", which the gateway passes through
+// unmodified, so a client sending one makes Symfony throw
+// ConflictingHeadersException on the two disagreeing trusted sources.
+$settings['reverse_proxy_trusted_headers'] =
+  \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_FOR
+  | \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_HOST
+  | \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_PORT
+  | \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_PROTO;
 
 /**
  * @todo Work around the compiled-container race during rolling updates.
