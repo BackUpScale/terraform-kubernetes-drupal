@@ -22,9 +22,17 @@ spec:
     kubernetes:
       envoyDeployment:
         replicas: 2
+      # Voluntary disruptions (node drains) must leave at least one proxy pod
+      # serving.
+      envoyPDB:
+        minAvailable: 1
       envoyService:
         type: LoadBalancer
-        externalTrafficPolicy: Local
+        # Cluster, not Local: client IPs reach Envoy via PROXY protocol (see
+        # the allow-proxy-protocol ClientTrafficPolicy), so Local adds nothing,
+        # while it makes the external load balancer blackhole any node without
+        # a ready local proxy pod for the length of its health-check lag.
+        externalTrafficPolicy: Cluster
         annotations:
           ${var.client_ip_preservation_annotation_key}: "${var.client_ip_preservation_annotation_value}"
           ${var.firewall_id_annotation_key}: "${var.firewall_id_annotation_value}"

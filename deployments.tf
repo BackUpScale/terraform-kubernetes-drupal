@@ -200,3 +200,20 @@ resource "kubernetes_deployment" "drupal" {
     ]
   }
 }
+
+# Voluntary disruptions (node drains) must leave at least one Drupal pod
+# serving; evicting the last ready pod has to wait for a replacement.
+resource "kubernetes_pod_disruption_budget_v1" "drupal" {
+  metadata {
+    name      = "drupal"
+    namespace = kubernetes_namespace.drupal_namespace.metadata[0].name
+  }
+  spec {
+    min_available = 1
+    selector {
+      match_labels = {
+        app = "drupal"
+      }
+    }
+  }
+}
