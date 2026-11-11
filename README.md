@@ -91,6 +91,9 @@ module "drupal" {
   drupal_container_image_url = "registry.gitlab.com/myorg/infrastructure/drupal-${var.cloud_environment}:latest"
   firewall_id_annotation_value = civo_firewall.myfirewall.id
   hash_salt = var.drupal_hash_salt
+  # Your kube-prometheus-stack Helm release name: Prometheus only discovers
+  # the ServiceMonitors this module creates if they carry its label.
+  prometheus_release_name = "kube-prometheus-stack"
   public_hostname = cloudflare_record.drupal_public_hostname.name
   private_hostname = cloudflare_record.drupal_private_hostname.name
   technical_contact_email = var.technical_contact_email

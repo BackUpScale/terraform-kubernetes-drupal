@@ -124,6 +124,10 @@ variable "drupal_files_pvc_name" {
   type        = string
   default     = "drupal-files-pvc"
 }
+variable "prometheus_release_name" {
+  description = "The kube-prometheus-stack Helm release name. Prometheus only discovers ServiceMonitors labelled with it, so every monitor this module creates must carry it or its metrics are silently never scraped."
+  type        = string
+}
 variable "mariadb_operator_chart_version" {
   description = "The Helm chart version for the MariaDB operator (one version drives both the operator and the CRDs chart). Minimum 25.10.x: the CR manifest targets the current CRD schema (serviceMonitor object, metrics.exporter.resources) and replication features (bootstrapFrom/recovery); older operators reject the apply. See https://artifacthub.io/packages/helm/mariadb-operator/mariadb-operator"
   type        = string

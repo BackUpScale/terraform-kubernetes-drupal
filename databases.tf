@@ -14,10 +14,29 @@ resource "helm_release" "mariadb_operator" {
   chart      = "mariadb-operator"
   version    = var.mariadb_operator_chart_version
   values = [yamlencode({
+    # Prometheus only discovers ServiceMonitors carrying the stack release's
+    # label; without it these three monitors exist but are never scraped.
     metrics = {
       enabled = true
       serviceMonitor = {
         enabled = true
+        additionalLabels = {
+          release = var.prometheus_release_name
+        }
+      }
+    }
+    webhook = {
+      serviceMonitor = {
+        additionalLabels = {
+          release = var.prometheus_release_name
+        }
+      }
+    }
+    certController = {
+      serviceMonitor = {
+        additionalLabels = {
+          release = var.prometheus_release_name
+        }
       }
     }
   })]
@@ -79,10 +98,13 @@ resource "kubectl_manifest" "mariadb_cluster" {
       myCnf: |-
         [mariadb]
         transaction-isolation=READ-COMMITTED
-      # Enable DB metrics (mysqld-exporter + ServiceMonitor)
+      # Enable DB metrics (mysqld-exporter + ServiceMonitor). prometheusRelease
+      # puts the release label on the generated ServiceMonitor; Prometheus's
+      # selector discovers nothing without it.
       metrics:
         enabled: true
-        serviceMonitor: {}
+        serviceMonitor:
+          prometheusRelease: ${var.prometheus_release_name}
         exporter:
           resources:
             requests:
