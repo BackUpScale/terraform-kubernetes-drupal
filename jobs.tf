@@ -31,8 +31,8 @@ resource "kubernetes_cron_job_v1" "drupal_cron" {
               image             = var.cron_curl_image
               image_pull_policy = "Always"
               # The container only runs curl, so it needs no privileges at
-              # all. The explicit UID is required because the image declares
-              # no USER, which runAsNonRoot would otherwise reject.
+              # all. The explicit UID keeps the pod's identity independent
+              # of whatever USER the image does or doesn't declare.
               security_context {
                 allow_privilege_escalation = false
                 run_as_non_root            = true

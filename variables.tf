@@ -314,9 +314,9 @@ variable "letsencrypt_production_environment_name" {
   default     = "production"
 }
 variable "cron_curl_image" {
-  description = "Container image to use for curl when running Cron jobs"
+  description = "Container image to use for curl when running Cron jobs. Must have curl as its entrypoint, taking curl options as container args."
   type        = string
-  default     = "byrnedo/alpine-curl:3.19"
+  default     = "curlimages/curl:8.23.0"
 }
 variable "drupal_automount_kubernetes_service_account_token" {
   description = "Whether to mount a Kubernetes API token into the Drupal pods. Drupal itself never calls the Kubernetes API, so the default removes the token to keep a compromised pod from holding a cluster identity; enable only if your Drupal genuinely talks to the API."
