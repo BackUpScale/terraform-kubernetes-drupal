@@ -213,6 +213,16 @@ variable "mariadb_auto_failover_delay" {
   type        = string
   default     = "30s"
 }
+variable "mariadb_replica_gtid" {
+  description = "GTID mode replicas use to decide where to resume when connecting to a primary (spec.replication.replica.gtid): CurrentPos or SlavePos. Null leaves it to the operator's default (CurrentPos). SlavePos is recommended: CurrentPos also counts a replica's own local writes, so a replica holding a stray self-originated transaction (e.g. after an ungraceful failover) can silently skip primary transactions when it reconnects (https://github.com/mariadb-operator/mariadb-operator/issues/1669). The operator sets gtid_slave_pos explicitly when bootstrapping replicas and demoting primaries, so SlavePos gives up nothing in exchange."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.mariadb_replica_gtid == null || contains(["CurrentPos", "SlavePos"], var.mariadb_replica_gtid)
+    error_message = "Must be \"CurrentPos\", \"SlavePos\", or null."
+  }
+}
 variable "mariadb_replica_bootstrap_name" {
   description = "Name of the PhysicalBackup template the operator uses to seed and recover replicas. Referenced by both the PhysicalBackup object and the MariaDB CR's spec.replication.replica.bootstrapFrom."
   type        = string
