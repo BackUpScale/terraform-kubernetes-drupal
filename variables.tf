@@ -133,6 +133,11 @@ variable "mariadb_operator_chart_version" {
   type        = string
   default     = "26.6.0"
 }
+variable "mariadb_default_image_tag" {
+  description = "Tag of the mariadb image the operator defaults new MariaDB resources to (the MariaDB resource here leaves spec.image to that default). Null uses the operator chart's own default, which can jump major versions between chart releases; pin a tag to keep rebuilt environments on the same server version as existing ones."
+  type        = string
+  default     = null
+}
 variable "mariadb_cpu_request" {
   description = "The minimum CPU requested by MariaDB pods."
   type        = string

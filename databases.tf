@@ -13,33 +13,47 @@ resource "helm_release" "mariadb_operator" {
   repository = "https://helm.mariadb.com/mariadb-operator"
   chart      = "mariadb-operator"
   version    = var.mariadb_operator_chart_version
-  values = [yamlencode({
-    # Prometheus only discovers ServiceMonitors carrying the stack release's
-    # label; without it these three monitors exist but are never scraped.
-    metrics = {
-      enabled = true
-      serviceMonitor = {
+  values = [yamlencode(merge(
+    # Pin the operator's default server image, deriving the minor version the
+    # operator needs (e.g. 11.8 from 11.8.8) for when it cannot infer one from
+    # a tag.
+    var.mariadb_default_image_tag == null ? {} : {
+      config = {
+        mariadbDefaultVersion = join(".", slice(split(".", var.mariadb_default_image_tag), 0, 2))
+        mariadbImage = {
+          repository = "mariadb"
+          tag        = var.mariadb_default_image_tag
+        }
+      }
+    },
+    {
+      # Prometheus only discovers ServiceMonitors carrying the stack release's
+      # label; without it these three monitors exist but are never scraped.
+      metrics = {
         enabled = true
-        additionalLabels = {
-          release = var.prometheus_release_name
+        serviceMonitor = {
+          enabled = true
+          additionalLabels = {
+            release = var.prometheus_release_name
+          }
         }
       }
-    }
-    webhook = {
-      serviceMonitor = {
-        additionalLabels = {
-          release = var.prometheus_release_name
+      webhook = {
+        serviceMonitor = {
+          additionalLabels = {
+            release = var.prometheus_release_name
+          }
         }
       }
-    }
-    certController = {
-      serviceMonitor = {
-        additionalLabels = {
-          release = var.prometheus_release_name
+      certController = {
+        serviceMonitor = {
+          additionalLabels = {
+            release = var.prometheus_release_name
+          }
         }
       }
-    }
-  })]
+    },
+  ))]
 }
 
 resource "kubectl_manifest" "mariadb_cluster" {
