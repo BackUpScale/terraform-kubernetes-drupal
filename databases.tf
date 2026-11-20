@@ -98,9 +98,9 @@ resource "kubectl_manifest" "mariadb_cluster" {
               name: ${var.mariadb_replica_bootstrap_name}
           recovery:
             enabled: true
-%{~ if var.mariadb_replica_gtid != null }
+%{~if var.mariadb_replica_gtid != null}
           gtid: ${var.mariadb_replica_gtid}
-%{~ endif }
+%{~endif}
       primaryService:
         type: "ClusterIP"
       secondaryService:
