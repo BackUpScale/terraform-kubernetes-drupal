@@ -168,7 +168,11 @@ spec:
   - group: gateway.networking.k8s.io
     kind: Gateway
     name: ${var.gateway_name}
-  enableProxyProtocol: true
+  # Interpret the (required) PROXY protocol header from the external load
+  # balancer and put the client address into X-Forwarded-For; Drupal's flood
+  # control depends on the real client IP. Successor to the deprecated
+  # enableProxyProtocol (removed upstream in 1.11).
+  proxyProtocol: {}
 YAML
 }
 
