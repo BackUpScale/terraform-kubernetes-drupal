@@ -304,13 +304,22 @@ resource "helm_release" "cert_manager" {
 # there, and ClusterIssuer secret references resolve in cert-manager's own
 # ("cluster resource") namespace.
 resource "kubernetes_secret" "cert_manager_cloudflare_api_token" {
-  count = var.cert_manager_cloudflare_dns01_api_token == null ? 0 : 1
+  # Gated on the plan-known boolean, not on the token value: the token may be
+  # an apply-time unknown (e.g. minted by the Cloudflare provider), and count
+  # cannot depend on unknown values.
+  count = var.cert_manager_cloudflare_dns01_enabled ? 1 : 0
   metadata {
     name      = "cert-manager-cloudflare-api-token"
     namespace = kubernetes_namespace.drupal_namespace.metadata[0].name
   }
   data = {
     "api-token" = var.cert_manager_cloudflare_dns01_api_token
+  }
+  lifecycle {
+    precondition {
+      condition     = var.cert_manager_cloudflare_dns01_api_token != null
+      error_message = "cert_manager_cloudflare_dns01_api_token must be set when cert_manager_cloudflare_dns01_enabled is true."
+    }
   }
 }
 
@@ -328,7 +337,7 @@ resource "kubectl_manifest" "lets_encrypt_staging" {
         privateKeySecretRef:
           name: acme-staging-key
         solvers:
-%{~if var.cert_manager_cloudflare_dns01_api_token != null}
+%{~if var.cert_manager_cloudflare_dns01_enabled}
           - dns01:
               cloudflare:
                 apiTokenSecretRef:
@@ -358,7 +367,7 @@ resource "kubectl_manifest" "lets_encrypt_production" {
         privateKeySecretRef:
           name: acme-prod-key
         solvers:
-%{~if var.cert_manager_cloudflare_dns01_api_token != null}
+%{~if var.cert_manager_cloudflare_dns01_enabled}
           - dns01:
               cloudflare:
                 apiTokenSecretRef:

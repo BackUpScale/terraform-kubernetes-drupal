@@ -427,8 +427,14 @@ variable "extra_public_hostnames" {
   default = []
 }
 
+variable "cert_manager_cloudflare_dns01_enabled" {
+  description = "Switch the Let's Encrypt ClusterIssuers to cert-manager's DNS-01 ACME solver via Cloudflare instead of the gateway HTTP-01 route, which keeps issuance working when the zone is proxied (orange-clouded) and decouples it from gateway health. Must be a plan-known value (a literal or variable, not derived from a resource attribute), and cert_manager_cloudflare_dns01_api_token must be set when true."
+  type        = bool
+  default     = false
+}
+
 variable "cert_manager_cloudflare_dns01_api_token" {
-  description = "Cloudflare API token (Zone:DNS:Edit on the zone) for cert-manager's DNS-01 ACME solver. When set, the Let's Encrypt ClusterIssuers solve challenges via Cloudflare DNS instead of the gateway HTTP-01 route, which keeps issuance working when the zone is proxied (orange-clouded) and decouples it from gateway health. Null keeps the HTTP-01 solver."
+  description = "Cloudflare API token (Zone:DNS:Edit on the zone) for the DNS-01 solver; used only when cert_manager_cloudflare_dns01_enabled is true. May be an apply-time value, such as a token minted by the Cloudflare provider in the calling configuration."
   type        = string
   sensitive   = true
   default     = null
