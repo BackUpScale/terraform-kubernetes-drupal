@@ -94,7 +94,7 @@ spec:
         certificateRefs:
           - kind: Secret
             name: drupal-tls
-%{~ for extra in var.extra_public_hostnames }
+%{~for extra in var.extra_public_hostnames}
     - name: ${extra.listener_name}
       hostname: ${extra.hostname}
       port: ${var.https_port}
@@ -104,7 +104,7 @@ spec:
         certificateRefs:
           - kind: Secret
             name: ${extra.tls_secret_name}
-%{~ endfor }
+%{~endfor}
 YAML
   # Block until the gateway is programmed and its load-balancer address is
   # assigned. Envoy Gateway copies the LB Service's address into
@@ -134,15 +134,15 @@ metadata:
   name: ${var.drupal_public_route_name}
   namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
-  hostnames: [ "${var.public_hostname}"%{ for extra in var.extra_public_hostnames }, "${extra.hostname}"%{ endfor } ]
+  hostnames: [ "${var.public_hostname}"%{for extra in var.extra_public_hostnames}, "${extra.hostname}"%{endfor} ]
   parentRefs:
     - name: ${var.gateway_name}
       namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
       sectionName: https
-%{~ for extra in var.extra_public_hostnames }
+%{~for extra in var.extra_public_hostnames}
     - name: ${var.gateway_name}
       sectionName: ${extra.listener_name}
-%{~ endfor }
+%{~endfor}
   rules:
     - matches:
         - path:
@@ -188,7 +188,7 @@ spec:
   parentRefs:
     - name: ${var.gateway_name}
       sectionName: http
-  hostnames: ["${var.public_hostname}"%{ for extra in var.extra_public_hostnames }, "${extra.hostname}"%{ endfor }]
+  hostnames: ["${var.public_hostname}"%{for extra in var.extra_public_hostnames}, "${extra.hostname}"%{endfor}]
   rules:
     - filters:
       - type: RequestRedirect
@@ -207,15 +207,15 @@ metadata:
   name: ${var.drupal_public_admin_route_name_to_deny}
   namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
 spec:
-  hostnames: [ "${var.public_hostname}"%{ for extra in var.extra_public_hostnames }, "${extra.hostname}"%{ endfor } ]
+  hostnames: [ "${var.public_hostname}"%{for extra in var.extra_public_hostnames}, "${extra.hostname}"%{endfor} ]
   parentRefs:
     - name: ${var.gateway_name}
       namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
       sectionName: https
-%{~ for extra in var.extra_public_hostnames }
+%{~for extra in var.extra_public_hostnames}
     - name: ${var.gateway_name}
       sectionName: ${extra.listener_name}
-%{~ endfor }
+%{~endfor}
   rules:
     - matches:
         - path:
@@ -300,8 +300,22 @@ resource "helm_release" "cert_manager" {
   })]
 }
 
+# The token Secret lives in the module namespace because cert-manager runs
+# there, and ClusterIssuer secret references resolve in cert-manager's own
+# ("cluster resource") namespace.
+resource "kubernetes_secret" "cert_manager_cloudflare_api_token" {
+  count = var.cert_manager_cloudflare_dns01_api_token == null ? 0 : 1
+  metadata {
+    name      = "cert-manager-cloudflare-api-token"
+    namespace = kubernetes_namespace.drupal_namespace.metadata[0].name
+  }
+  data = {
+    "api-token" = var.cert_manager_cloudflare_dns01_api_token
+  }
+}
+
 resource "kubectl_manifest" "lets_encrypt_staging" {
-  depends_on = [helm_release.cert_manager]
+  depends_on = [helm_release.cert_manager, kubernetes_secret.cert_manager_cloudflare_api_token]
   yaml_body  = <<YAML
     apiVersion: cert-manager.io/v1
     kind: ClusterIssuer
@@ -314,16 +328,24 @@ resource "kubectl_manifest" "lets_encrypt_staging" {
         privateKeySecretRef:
           name: acme-staging-key
         solvers:
+%{~if var.cert_manager_cloudflare_dns01_api_token != null}
+          - dns01:
+              cloudflare:
+                apiTokenSecretRef:
+                  name: cert-manager-cloudflare-api-token
+                  key: api-token
+%{~else}
           - http01:
               gatewayHTTPRoute:
                 parentRefs:
                   - kind: Gateway
                     name: ${var.gateway_name}
                     namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
+%{~endif}
 YAML
 }
 resource "kubectl_manifest" "lets_encrypt_production" {
-  depends_on = [helm_release.cert_manager]
+  depends_on = [helm_release.cert_manager, kubernetes_secret.cert_manager_cloudflare_api_token]
   yaml_body  = <<YAML
     apiVersion: cert-manager.io/v1
     kind: ClusterIssuer
@@ -336,11 +358,19 @@ resource "kubectl_manifest" "lets_encrypt_production" {
         privateKeySecretRef:
           name: acme-prod-key
         solvers:
+%{~if var.cert_manager_cloudflare_dns01_api_token != null}
+          - dns01:
+              cloudflare:
+                apiTokenSecretRef:
+                  name: cert-manager-cloudflare-api-token
+                  key: api-token
+%{~else}
           - http01:
               gatewayHTTPRoute:
                 parentRefs:
                   - kind: Gateway
                     name: ${var.gateway_name}
                     namespace: ${kubernetes_namespace.drupal_namespace.metadata[0].name}
+%{~endif}
 YAML
 }

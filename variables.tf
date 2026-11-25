@@ -426,3 +426,10 @@ variable "extra_public_hostnames" {
   }))
   default = []
 }
+
+variable "cert_manager_cloudflare_dns01_api_token" {
+  description = "Cloudflare API token (Zone:DNS:Edit on the zone) for cert-manager's DNS-01 ACME solver. When set, the Let's Encrypt ClusterIssuers solve challenges via Cloudflare DNS instead of the gateway HTTP-01 route, which keeps issuance working when the zone is proxied (orange-clouded) and decouples it from gateway health. Null keeps the HTTP-01 solver."
+  type        = string
+  sensitive   = true
+  default     = null
+}
