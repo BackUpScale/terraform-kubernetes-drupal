@@ -297,6 +297,20 @@ resource "helm_release" "cert_manager" {
       kind             = "ControllerConfiguration"
       enableGatewayAPI = true
     }
+    # Certificate expiry/readiness metrics are the only place renewal
+    # failures are visible in advance: behind a proxying edge (e.g.
+    # Cloudflare), external monitors only ever see the edge's own
+    # certificate. Prometheus only discovers ServiceMonitors carrying the
+    # stack release's label.
+    prometheus = {
+      enabled = true
+      servicemonitor = {
+        enabled = true
+        labels = {
+          release = var.prometheus_release_name
+        }
+      }
+    }
   })]
 }
 
